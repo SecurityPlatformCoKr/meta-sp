@@ -1,0 +1,14 @@
+[Unit]
+Description=Flashing eMMC
+After=dev-mmcblk1.device dev-tty11.device
+
+[Service]
+Type=simple
+#RemainAfterExit=yes
+ExecStart=/usr/bin/emmc.sh
+StandardInput=tty-force
+StandardOutput=syslog
+TTYPath=/dev/tty11
+
+[Install]
+WantedBy=basic.target

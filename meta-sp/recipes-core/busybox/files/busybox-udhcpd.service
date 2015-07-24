@@ -1,0 +1,11 @@
+[Unit]
+Description=DHCP service
+After=systemd-neworkd.service
+
+[Service]
+ExecStart=/usr/sbin/udhcpd -f /etc/udhcpd.conf
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

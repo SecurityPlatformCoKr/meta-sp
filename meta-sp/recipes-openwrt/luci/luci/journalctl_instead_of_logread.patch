@@ -1,0 +1,17 @@
+diff --git a/libs/sys/luasrc/sys.lua b/libs/sys/luasrc/sys.lua
+index 18622da..fca7f23 100644
+--- a/libs/sys/luasrc/sys.lua
++++ b/libs/sys/luasrc/sys.lua
+@@ -193,10 +193,10 @@ function sysinfo()
+ 	return system, model, memtotal, memcached, membuffers, memfree, bogomips
+ end
+ 
+---- Retrieves the output of the "logread" command.
++--- Retrieves the output of the "journalctl -xn --no-pager" command.
+ -- @return	String containing the current log buffer
+ function syslog()
+-	return luci.util.exec("logread")
++	return luci.util.exec("journalctl -xn --no-pager")
+ end
+ 
+ --- Retrieves the output of the "dmesg" command.

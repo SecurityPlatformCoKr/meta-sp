@@ -1,0 +1,13 @@
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index a734d47..2a36e58 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -9,7 +9,7 @@ testdmclient_LDADD = $(top_builddir)/dmcore/libdmclient.la \
+ libdir = $(MO_INSTALL_DIR)
+ 
+ install-exec-hook:
+-	find $(libdir) -type f -name \*.la -delete
++	find $(DESTDIR)/$(libdir) -type f -name \*.la -delete
+ 
+ lib_LTLIBRARIES = modevdetails.la modevinfo.la moinbox.la mostorage.la modmacc.la momemory.la
+ 

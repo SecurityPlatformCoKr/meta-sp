@@ -1,0 +1,25 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e3963f8..1d91e76 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -82,4 +82,6 @@ FIND_PACKAGE(CURL REQUIRED)
+ INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIR})
+ TARGET_LINK_LIBRARIES(freecwmpd ${CURL_LIBRARIES})
+ 
++TARGET_LINK_LIBRARIES(freecwmpd pthread)
++
+ INSTALL(TARGETS freecwmpd RUNTIME DESTINATION bin)
+diff --git a/src/ubus.c b/src/ubus.c
+index dd5b5f3..ab8b34f 100644
+--- a/src/ubus.c
++++ b/src/ubus.c
+@@ -12,6 +12,9 @@
+ #include <stdio.h>
+ #include <unistd.h>
+ #include <libubus.h>
++#ifdef ARRAY_SIZE
++#undef ARRAY_SIZE
++#endif
+ #include <libfreecwmp.h>
+ 
+ #include "ubus.h"

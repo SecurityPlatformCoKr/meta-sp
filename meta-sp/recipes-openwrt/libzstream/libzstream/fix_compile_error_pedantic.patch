@@ -1,0 +1,21 @@
+diff --git a/Makefile b/Makefile
+index a694e04..38be97c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ CFLAGS?=-Os -g
+ SFLAGS:=-std=c99 -D_GNU_SOURCE
+-WFLAGS:=-Wall -Werror -pedantic
++WFLAGS:=-Wall -Werror
+ LDFLAGS?=
+ DESTDIR?=
+ LIBRARY:=libzstream.so
+@@ -28,7 +28,7 @@ $(LIBRARY): *.c $(DYNSOURCE)
+ 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SFLAGS) $(WFLAGS) -fpic -shared -o $@ $+ $(LDFLAGS) -l$(SSL) $(DYNFLAGS) -D $(B64_MACRO)
+ 
+ $(BINARY): cli/*.c
+-	$(CC) $(CFLAGS) $(CPPFLAGS) $(SFLAGS) $(WFLAGS) -o $@ $+ -I. -L. -lzstream $(LDFLAGS)
++	$(CC) $(CFLAGS) $(CPPFLAGS) $(SFLAGS) $(WFLAGS) -o $@ $+ -I. -L. -lzstream $(LDFLAGS) $(DYNFLAGS)
+ 
+ install:
+ 	mkdir -p $(DESTDIR)$(bindir)

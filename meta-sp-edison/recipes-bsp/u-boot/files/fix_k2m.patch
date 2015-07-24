@@ -1,0 +1,16 @@
+diff --git a/include/configs/edison.h b/include/configs/edison.h
+index fe0759f..70e82fc 100644
+--- a/include/configs/edison.h
++++ b/include/configs/edison.h
+@@ -264,5 +264,11 @@
+ #define CONFIG_CPU_CHIP 4
+ #define CONFIG_X86_MRFLD
+ 
++#define CONFIG_OF_CONTROL
++#define CONFIG_OF_LIBFDT
++#define CONFIG_RSA
++#define CONFIG_FIT
++#define CONFIG_FIT_SIGNATURE
++#define CONFIG_CMD_FDT
+ 
+ #endif

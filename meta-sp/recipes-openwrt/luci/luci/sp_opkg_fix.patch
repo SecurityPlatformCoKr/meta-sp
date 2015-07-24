@@ -1,0 +1,81 @@
+diff --git a/libs/ipkg/luasrc/model/ipkg.lua b/libs/ipkg/luasrc/model/ipkg.lua
+index c927e71..0f4bcd2 100644
+--- a/libs/ipkg/luasrc/model/ipkg.lua
++++ b/libs/ipkg/luasrc/model/ipkg.lua
+@@ -22,8 +22,8 @@ local pairs = pairs
+ local error = error
+ local table = table
+ 
+-local ipkg = "opkg --force-removal-of-dependent-packages --force-overwrite --nocase"
+-local icfg = "/etc/opkg.conf"
++local ipkg = "opkg --force-removal-of-dependent-packages --force-overwrite"
++local icfg = "/etc/opkg/opkg.conf"
+ 
+ --- LuCI OPKG call abstraction library
+ module "luci.model.ipkg"
+diff --git a/libs/web/root/etc/config/luci b/libs/web/root/etc/config/luci
+index c503a8f..6954868 100644
+--- a/libs/web/root/etc/config/luci
++++ b/libs/web/root/etc/config/luci
+@@ -8,7 +8,7 @@ config extern flash_keep
+ 	option dropbear "/etc/dropbear/"
+ 	option openvpn	"/etc/openvpn/"
+ 	option passwd	"/etc/passwd"
+-	option opkg		"/etc/opkg.conf"
++	option opkg		"/etc/opkg/opkg.conf"
+ 	option firewall	"/etc/firewall.user"
+ 	option uploads	"/lib/uci/upload/"
+ 	
+diff --git a/modules/admin-full/luasrc/controller/admin/system.lua b/modules/admin-full/luasrc/controller/admin/system.lua
+index 55ad01c..585ed07 100644
+--- a/modules/admin-full/luasrc/controller/admin/system.lua
++++ b/modules/admin-full/luasrc/controller/admin/system.lua
+@@ -22,7 +22,7 @@ function index()
+ 
+ 	entry({"admin", "system", "admin"}, cbi("admin_system/admin"), _("Administration"), 2)
+ 
+-	if nixio.fs.access("/bin/opkg") then
++	if nixio.fs.access("/usr/bin/opkg") then
+ 		entry({"admin", "system", "packages"}, call("action_packages"), _("Software"), 10)
+ 		entry({"admin", "system", "packages", "ipkg"}, form("admin_system/ipkg"))
+ 	end
+@@ -142,11 +142,11 @@ function action_packages()
+ 	-- List state
+ 	local no_lists = true
+ 	local old_lists = false
+-	local tmp = nixio.fs.dir("/var/opkg-lists/")
++	local tmp = nixio.fs.dir("/var/lib/opkg/lists/")
+ 	if tmp then
+ 		for tmp in tmp do
+ 			no_lists = false
+-			tmp = nixio.fs.stat("/var/opkg-lists/"..tmp)
++			tmp = nixio.fs.stat("/var/lib/opkg/lists/"..tmp)
+ 			if tmp and tmp.mtime < (os.time() - (24 * 60 * 60)) then
+ 				old_lists = true
+ 				break
+diff --git a/modules/admin-full/luasrc/model/cbi/admin_system/ipkg.lua b/modules/admin-full/luasrc/model/cbi/admin_system/ipkg.lua
+index e9ff5b1..f75ae13 100644
+--- a/modules/admin-full/luasrc/model/cbi/admin_system/ipkg.lua
++++ b/modules/admin-full/luasrc/model/cbi/admin_system/ipkg.lua
+@@ -13,7 +13,7 @@ You may obtain a copy of the License at
+ $Id$
+ ]]--
+ 
+-local ipkgfile = "/etc/opkg.conf"
++local ipkgfile = "/etc/opkg/opkg.conf"
+ 
+ f = SimpleForm("ipkgconf", translate("OPKG-Configuration"))
+ 
+diff --git a/modules/admin-full/luasrc/view/admin_system/packages.htm b/modules/admin-full/luasrc/view/admin_system/packages.htm
+index 00b4be4..03dbcb8 100644
+--- a/modules/admin-full/luasrc/view/admin_system/packages.htm
++++ b/modules/admin-full/luasrc/view/admin_system/packages.htm
+@@ -44,7 +44,7 @@ local letterpat
+ if letter == 35 then
+ 	letterpat = "[^a-z]*"
+ else
+-	letterpat = string.char(letter, 42) -- 'A' '*'
++	letterpat = string.lower(string.char(letter, 42)) -- 'a' '*'
+ end
+ 
+ -%>

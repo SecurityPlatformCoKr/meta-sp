@@ -1,0 +1,24 @@
+diff -urNp opencryptoki.a/usr/lib/pkcs11/ep11_stdll/Makefile.am opencryptoki.b/usr/lib/pkcs11/ep11_stdll/Makefile.am
+--- opencryptoki.a/usr/lib/pkcs11/ep11_stdll/Makefile.am	2014-09-10 13:24:28.000000000 +0900
++++ opencryptoki.b/usr/lib/pkcs11/ep11_stdll/Makefile.am	2015-06-15 13:57:45.284888082 +0900
+@@ -10,7 +10,7 @@ opencryptoki_stdll_libpkcs11_ep11_la_CFL
+ 					    -DSHALLOW=0 -DEPSWTOK=1 -DLITE=0  \
+ 					    -DNOCDMF -DNOMD2 -DNORIPE         \
+ 					    -fPIC -O0 -DDEFENSIVE_MECHLIST 		    \
+-					    -I/usr/include -I.		    \
++					    -I.		    \
+ 					    -I../../../include/pkcs11/stdll \
+ 					    -I../../../include/pkcs11	    \
+ 					    -I../common -DSTDLL_NAME=\"ep11tok\"
+diff -urNp opencryptoki.a/usr/lib/pkcs11/soft_stdll/Makefile.am opencryptoki.b/usr/lib/pkcs11/soft_stdll/Makefile.am
+--- opencryptoki.a/usr/lib/pkcs11/soft_stdll/Makefile.am	2014-09-10 13:24:28.000000000 +0900
++++ opencryptoki.b/usr/lib/pkcs11/soft_stdll/Makefile.am	2015-06-15 13:57:55.256731887 +0900
+@@ -8,7 +8,7 @@ opencryptoki_stdll_libpkcs11_sw_la_CFLAG
+ 					    -DSHALLOW=0 -DSWTOK=1 -DLITE=0  \
+ 					    -DNOCDMF -DNOMD2 -DNODSA -DNORIPE	    \
+ 					    -fPIC		    \
+-					    -I/usr/include -I.		    \
++					    -I.		    \
+ 					    -I../../../include/pkcs11/stdll \
+ 					    -I../../../include/pkcs11	    \
+ 					    -I../common -DSTDLL_NAME=\"swtok\"

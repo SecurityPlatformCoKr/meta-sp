@@ -1,0 +1,8 @@
+[Unit]
+Description="small web server"
+
+[Service]
+ExecStart=/usr/sbin/uhttpd -f -p 80 -D -h /www
+
+[Install]
+WantedBy=multi-user.target

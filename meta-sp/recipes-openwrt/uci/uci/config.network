@@ -1,0 +1,9 @@
+config interface wan
+        option ifname eth0
+	option proto dhcp
+
+config interface lan
+	option ifname usb0
+	option proto static
+	option ipaddr 192.168.0.1
+	option netmask 255.255.255.0

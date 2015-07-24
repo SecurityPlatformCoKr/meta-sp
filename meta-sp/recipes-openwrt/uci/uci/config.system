@@ -1,0 +1,6 @@
+config system
+        option hostname 'CastleBlack'
+	option zonename 'Asia/Seoul'
+	option timezone 'KST-9'
+        option log_ip '192.168.0.2'
+	option log_port '514'

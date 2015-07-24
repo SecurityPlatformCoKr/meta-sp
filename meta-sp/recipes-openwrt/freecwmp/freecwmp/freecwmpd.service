@@ -1,0 +1,10 @@
+[Unit]
+Description=open source CWMP implementation.
+Requires=ubus.service
+
+[Service]
+ExecStart=/usr/bin/freecwmpd -f
+
+[Install]
+WantedBy=multi-user.target
+

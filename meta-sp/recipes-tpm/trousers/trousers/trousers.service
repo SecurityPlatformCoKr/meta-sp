@@ -1,0 +1,14 @@
+[Unit]
+Description="tcsd belongs to the TrouSerS TCG Software Stack"
+After=syslog.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/tcsd
+User=tss
+Group=tss
+Restart=always
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target

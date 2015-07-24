@@ -1,0 +1,13 @@
+Index: uhttpd.c
+===================================================================
+--- a/uhttpd.c	(revision 46134)
++++ b/uhttpd.c	(working copy)
+@@ -16,7 +16,7 @@
+  *  limitations under the License.
+  */
+ 
+-#define _XOPEN_SOURCE 500	/* crypt() */
++#define _XOPEN_SOURCE 600	/* crypt() */
+ 
+ #include "uhttpd.h"
+ #include "uhttpd-utils.h"

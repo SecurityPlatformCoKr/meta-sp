@@ -1,0 +1,1 @@
+KERNEL=="usb0", ACTION=="add", RUN += "/usr/bin/fixmac.sh %k"

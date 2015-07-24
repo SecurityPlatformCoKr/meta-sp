@@ -1,0 +1,11 @@
+diff --git a/systemd/ubus.service.in b/systemd/ubus.service.in
+index 185a42f..89a0c00 100644
+--- a/systemd/ubus.service.in
++++ b/systemd/ubus.service.in
+@@ -4,3 +4,6 @@ Requires=ubus.socket
+ 
+ [Service]
+ ExecStart=@UBUSD_BINARY@
++
++[Install]
++WantedBy=multi-user.target

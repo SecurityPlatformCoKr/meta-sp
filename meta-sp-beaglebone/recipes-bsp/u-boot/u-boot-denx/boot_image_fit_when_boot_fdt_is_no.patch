@@ -1,0 +1,13 @@
+diff --git a/include/configs/am335x_evm.h b/include/configs/am335x_evm.h
+index a48b386..948db82 100644
+--- a/include/configs/am335x_evm.h
++++ b/include/configs/am335x_evm.h
+@@ -137,7 +137,7 @@
+ 				"fi; " \
+ 			"fi; " \
+ 		"else " \
+-			"bootz; " \
++			"bootm; " \
+ 		"fi;\0" \
+ 	"mmcboot=mmc dev ${mmcdev}; " \
+ 		"if mmc rescan; then " \

@@ -1,0 +1,83 @@
+diff --git a/Makefile b/Makefile
+index 7dc9fa1..a3eb27f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,7 @@
+ include build/config.mk
+ 
+-MODULES = contrib/* applications/* libs/* modules/* themes/* i18n/*
++#MODULES = contrib/* applications/* libs/* modules/* themes/* i18n/*
++MODULES = applications/* libs/* modules/* themes/* i18n/*
+ 
+ OS:=$(shell uname)
+ MODULES:=$(foreach item,$(wildcard $(MODULES)),$(if $(realpath $(wildcard $(item)/Makefile)),$(item)))
+diff --git a/build/gccconfig.mk b/build/gccconfig.mk
+index 97d19bd..6943470 100644
+--- a/build/gccconfig.mk
++++ b/build/gccconfig.mk
+@@ -4,7 +4,7 @@ LUA_SHLIBS = $(shell pkg-config --silence-errors --libs lua5.1 || pkg-config --s
+ LUA_LIBS = $(if $(LUA_SHLIBS),$(LUA_SHLIBS),$(firstword $(wildcard /usr/lib/liblua.a /usr/local/lib/liblua.a /opt/local/lib/liblua.a)))
+ LUA_CFLAGS = $(shell pkg-config --silence-errors --cflags lua5.1 || pkg-config --silence-errors --cflags lua-5.1 || pkg-config --silence-errors --cflags lua)
+ 
+-CC = gcc
++CC ?= gcc
+ AR = ar
+ RANLIB = ranlib
+ CFLAGS = -O2
+diff --git a/contrib/lar/Makefile b/contrib/lar/Makefile
+index 5199546..f77e5e2 100644
+--- a/contrib/lar/Makefile
++++ b/contrib/lar/Makefile
+@@ -1,4 +1,4 @@
+-GCC     := gcc
++GCC     ?= gcc
+ CFLAGS  := -Wall
+ LDFLAGS :=
+ 
+diff --git a/libs/nixio/axTLS/config/Rules.mak b/libs/nixio/axTLS/config/Rules.mak
+index c0308da..baea474 100644
+--- a/libs/nixio/axTLS/config/Rules.mak
++++ b/libs/nixio/axTLS/config/Rules.mak
+@@ -32,7 +32,7 @@ BUILDTIME := $(shell TZ=UTC date -u "+%Y.%m.%d-%H:%M%z")
+ # by asking the CC compiler what arch it compiles things for, so unless
+ # your compiler is broken, you should not need to specify TARGET_ARCH
+ CROSS           =$(subst ",, $(strip $(CROSS_COMPILER_PREFIX)))
+-CC             = $(CROSS)gcc
++CC             ?= $(CROSS)gcc
+ AR             = $(CROSS)ar
+ AS             = $(CROSS)as
+ LD             = $(CROSS)ld
+diff --git a/libs/nixio/standalone.mk b/libs/nixio/standalone.mk
+index 95f6bec..dc4272a 100644
+--- a/libs/nixio/standalone.mk
++++ b/libs/nixio/standalone.mk
+@@ -11,9 +11,9 @@ LUA_SHLIBS = $(shell pkg-config --silence-errors --libs lua5.1 || pkg-config --s
+ LUA_LIBS = $(if $(LUA_SHLIBS),$(LUA_SHLIBS),$(firstword $(wildcard /usr/lib/liblua.a /usr/local/lib/liblua.a /opt/local/lib/liblua.a)))
+ LUA_CFLAGS = $(shell pkg-config --silence-errors --cflags lua5.1 || pkg-config --silence-errors --cflags lua-5.1 || pkg-config --silence-errors --cflags lua)
+ 
+-CC = gcc
+-AR = ar
+-RANLIB = ranlib
++CC ?= gcc
++AR ?= ar
++RANLIB ?= ranlib
+ CFLAGS = -O2
+ FPIC = -fPIC
+ EXTRA_CFLAGS = --std=gnu99
+diff --git a/libs/web/standalone.mk b/libs/web/standalone.mk
+index 66a0e5a..633c811 100644
+--- a/libs/web/standalone.mk
++++ b/libs/web/standalone.mk
+@@ -11,9 +11,9 @@ LUA_SHLIBS = $(shell pkg-config --silence-errors --libs lua5.1 || pkg-config --s
+ LUA_LIBS = $(if $(LUA_SHLIBS),$(LUA_SHLIBS),$(firstword $(wildcard /usr/lib/liblua.a /usr/local/lib/liblua.a /opt/local/lib/liblua.a)))
+ LUA_CFLAGS = $(shell pkg-config --silence-errors --cflags lua5.1 || pkg-config --silence-errors --cflags lua-5.1 || pkg-config --silence-errors --cflags lua)
+ 
+-CC = gcc
+-AR = ar
+-RANLIB = ranlib
++CC ?= gcc
++AR ?= ar
++RANLIB ?= ranlib
+ CFLAGS = -O2
+ FPIC = -fPIC
+ EXTRA_CFLAGS = --std=gnu99

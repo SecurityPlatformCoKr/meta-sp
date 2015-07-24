@@ -1,0 +1,27 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a8e8945..38ae2d3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -22,6 +22,7 @@ ENDIF()
+ SET(SOURCES avl.c avl-cmp.c blob.c blobmsg.c uloop.c usock.c ustream.c ustream-fd.c vlist.c utils.c safe_list.c runqueue.c md5.c ulog.c)
+ 
+ ADD_LIBRARY(ubox SHARED ${SOURCES})
++SET_TARGET_PROPERTIES(ubox PROPERTIES SOVERSION "0")
+ ADD_LIBRARY(ubox-static STATIC ${SOURCES})
+ SET_TARGET_PROPERTIES(ubox-static PROPERTIES OUTPUT_NAME ubox)
+ 
+@@ -48,12 +49,14 @@ ADD_SUBDIRECTORY(lua)
+ find_library(json NAMES json-c json)
+ IF(EXISTS ${json})
+ 	ADD_LIBRARY(blobmsg_json SHARED blobmsg_json.c)
++	SET_TARGET_PROPERTIES(blobmsg_json PROPERTIES SOVERSION "0")
+ 	TARGET_LINK_LIBRARIES(blobmsg_json ubox ${json})
+ 
+ 	ADD_EXECUTABLE(jshn jshn.c)
+ 	TARGET_LINK_LIBRARIES(jshn ${json})
+ 
+ 	ADD_LIBRARY(json_script SHARED json_script.c)
++	SET_TARGET_PROPERTIES(json_script PROPERTIES SOVERSION "0")
+ 	TARGET_LINK_LIBRARIES(json_script ubox)
+ 
+ 	INSTALL(TARGETS blobmsg_json jshn json_script

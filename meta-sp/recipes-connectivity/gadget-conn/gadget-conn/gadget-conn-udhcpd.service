@@ -1,0 +1,12 @@
+[Unit]
+Description=Gadget Connction service
+After=connman.service systemd-modules-load.service
+Requires=connman.service
+
+[Service]
+ExecStart=/usr/sbin/udhcpd -f /etc/udhcpd.conf
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

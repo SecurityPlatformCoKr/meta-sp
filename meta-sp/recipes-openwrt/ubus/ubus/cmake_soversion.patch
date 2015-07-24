@@ -1,0 +1,12 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cb2f420..33e00a9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -20,6 +20,7 @@ IF(APPLE)
+ ENDIF()
+ 
+ ADD_LIBRARY(ubus SHARED libubus.c libubus-io.c libubus-obj.c libubus-sub.c libubus-req.c)
++SET_TARGET_PROPERTIES(ubus PROPERTIES SOVERSION "0")
+ TARGET_LINK_LIBRARIES(ubus ubox)
+ 
+ ADD_EXECUTABLE(ubusd ubusd.c ubusd_id.c ubusd_obj.c ubusd_proto.c ubusd_event.c)

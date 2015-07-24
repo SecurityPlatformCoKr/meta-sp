@@ -1,0 +1,14 @@
+to make flasher image:
+
+    sudo ./makeflasher.sh
+
+to record image to SD:
+
+    sudo ./record2microsd.sh sp-image-beaglebone-eMMC-Flasher.2015-01-27.img sde
+
+
+to mount image on local directories 1 and 2:
+    sudo ./set_image_usable.sh sp-image-beaglebone-eMMC-Flasher.2015-01-27.img
+
+to unmount image:
+    sudo ./detach_image.sh
