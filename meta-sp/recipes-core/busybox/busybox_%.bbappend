@@ -16,8 +16,8 @@ FILES_${PN}-udhcpd = "${sysconfdir}/udhcpd.conf \
 do_install_append() {
     install -d ${D}${sysconfdir}
     install -m 0644 ${WORKDIR}/udhcpd.conf ${D}${sysconfdir}/
-    install -d ${D}${systemd_unitdir}
-    install -m 0644 ${WORKDIR}/busybox-udhcpd.service ${D}${systemd_unitdir}/system
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/busybox-udhcpd.service ${D}${systemd_unitdir}/system/
 }
 
 PACKAGES =+ "${PN}-klogd"
