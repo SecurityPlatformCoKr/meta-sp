@@ -6,7 +6,9 @@ DEPENDS="mraa"
 
 SRC_URI = "file://ii2c.c \
 	   file://Makefile \
+	   file://ii2c.service \
 	  "
+
 S = "${WORKDIR}"
 do_compile() {
     make ii2c
@@ -14,5 +16,10 @@ do_compile() {
 
 do_install() {
     make DESTDIR=${D} install
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/ii2c.service ${D}${systemd_unitdir}/system/
 }
 
+inherit systemd
+
+SYSTEMD_SERVICE_${PN} = "ii2c.service"

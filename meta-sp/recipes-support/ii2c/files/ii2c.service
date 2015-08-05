@@ -1,0 +1,12 @@
+[Unit]
+Description="ii2c enables i2c on Intel Edison or Galileo Board"
+After=syslog.target
+Before=trousers.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ii2c
+
+[Install]
+WantedBy=multi-user.target
+

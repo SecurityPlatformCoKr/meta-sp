@@ -1,0 +1,12 @@
+[Unit]
+Description="enable_tpm enables tpm-i2c-atmel on Galileo II"
+After=syslog.target
+Before=trousers.service
+After=ii2c.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "/bin/echo tpm_i2c_atmel 0x29 > /sys/bus/i2c/devices/i2c-0/new_device"
+
+[Install]
+WantedBy=multi-user.target
