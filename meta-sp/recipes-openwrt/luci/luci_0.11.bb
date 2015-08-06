@@ -10,7 +10,7 @@ SRC_URI="git://github.com/openwrt/luci.git;protocol=https;branch=luci-0.11 \
 	"
 SRCREV="668f8ed7a09f3118038e604a234651250c0807e1"
 
-DEPENDS = "lua5.1"
+DEPENDS = "lua5.1 uci libubox"
 
 do_compile() {
     make
@@ -1451,13 +1451,14 @@ ${libdir}/lua/.debug/px5g.so \
 
 RDEPENDS_${PN}-theme += "${PN}-themes-base"
 
-RDEPNDS_${PN}-libs-sgi-cgi += "${PN}-libs-web ${PN}-libs-core \
+RDEPENDS_${PN}-libs-sgi-cgi += "${PN}-libs-web ${PN}-libs-core \
 			       ${PN}-libs-nixio ${PN}-libs-sys \
 			       ${PN}-libs-core ${PN}-theme \
-			       ${PN}-libs-admin-full ${PN}-i18n \
+			       ${PN}-modules-admin-full ${PN}-i18n \
 			       ${PN}-libs-ipkg \
 			       libubox libubus-lua libuci-lua \
-			       bridge-utils uci \
+			       uci \
 			       "
-RDEPNDS_${PN}-modules-admin-core += "${PN}-libs-sgi-cgi"
+RDEPENDS_${PN}-modules-admin-core += "${PN}-libs-sgi-cgi"
 
+RPROVIDES_${PN}-modules-admin-core = "luci"

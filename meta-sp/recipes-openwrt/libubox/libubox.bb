@@ -15,5 +15,5 @@ inherit cmake
 
 EXTRA_OECMAKE="-DLUAPATH=/usr/lib/lua"
 
-FILES_${PN} += "/usr/lib/lua/uloop.so"
-FILES_${PN}-dbg += "/usr/lib/lua/.debug/uloop.so"
+FILES_${PN} += "${libdir}/lua/uloop.so"
+FILES_${PN}-dbg += "${libdir}/lua/.debug/uloop.so"
