@@ -49,10 +49,16 @@ int find_i2cbus(void)
     return 0;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
     int i2cbus = find_i2cbus();
 
+    if (argc > 1) {
+	if (strncmp(argv[1], "-i", 2) == 0) {
+	    fprintf(stdout, "%d", i2cbus);
+	    return 0;
+	}
+    }
     mraa_init();
     mraa_i2c_init(i2cbus);
     return 0;
