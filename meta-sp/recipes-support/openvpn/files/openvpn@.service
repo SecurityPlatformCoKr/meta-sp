@@ -1,0 +1,13 @@
+[Unit]
+Description=OpenVPN connection to %i
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/openvpn --daemon ovpn-%i --status /var/run/openvpn_%i.status 10 --cd /var/lib/openvpn --config /etc/openvpn/%i.conf
+ExecReload=/bin/kill -HUP $MAINPID
+WorkingDirectory=/var/lib/openvpn
+
+[Install]
+WantedBy=multi-user.target
+
