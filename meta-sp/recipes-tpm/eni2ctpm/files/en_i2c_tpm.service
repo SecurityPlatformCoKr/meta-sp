@@ -6,6 +6,7 @@ After=ii2c.service
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 ExecStart=/bin/sh -c "/bin/echo tpm_i2c_atmel 0x29 > /sys/bus/i2c/devices/i2c-`/usr/bin/ii2c -i`/new_device"
 ExecStop=/bin/sh -c "/bin/echo 0x29 > /sys/bus/i2c/devices/i2c-`/usr/bin/ii2c -i`/delete_device"
 
