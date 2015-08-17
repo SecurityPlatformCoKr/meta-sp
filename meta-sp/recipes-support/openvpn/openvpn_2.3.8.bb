@@ -37,7 +37,7 @@ do_install_append() {
 
 inherit systemd
 
-SYSTEMD_SERVICE_${PN} = "openvpn@.service"
+SYSTEMD_AUTO_ENABLE = "disable"
 
 FILES_${PN}-dbg += "${libdir}/openvpn/plugins/.debug"
 FILES_${PN} += "${systemd_unitdir}/system/openvpn@.service \
@@ -48,3 +48,5 @@ PACKAGES =+ "${PN}-server ${PN}-client"
 
 FILES_${PN}-server = "${sysconfdir}/openvpn/server.conf"
 FILES_${PN}-client = "${sysconfdir}/openvpn/client.conf"
+CONFFILES_${PN}-server = "${sysconfdir}/openvpn/server.conf"
+CONFFILES_${PN}-client = "${sysconfdir}/openvpn/client.conf"
