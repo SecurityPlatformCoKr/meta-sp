@@ -9,6 +9,7 @@ DEPENDS += "systemd"
 inherit autotools
 
 SRC_URI = "git://github.com/OpenVPN/openvpn.git;protocol=https;nobranch=1 \
+	   file://check_tty_ifndef_systemd.patch \
            file://openvpn@.service \
 	   file://server.conf \
 	   file://client.conf \
@@ -25,6 +26,7 @@ EXTRA_OECONF += "${@base_contains('DISTRO_FEATURES', 'systemd', '--enable-system
 
 # Explicitly specify IPROUTE to bypass the configure-time check for /sbin/ip on the host.
 EXTRA_OECONF += "IPROUTE=/sbin/ip"
+EXTRA_OECONF += "SYSTEMD_ASK_PASSWORD=/bin/systemd-ask-password"
 
 do_install_append() {
     install -d ${D}/var/lib/openvpn
