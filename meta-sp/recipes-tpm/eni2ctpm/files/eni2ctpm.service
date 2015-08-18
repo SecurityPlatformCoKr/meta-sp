@@ -2,6 +2,7 @@
 Description="enable_tpm enables tpm-i2c-atmel on Galileo II"
 After=syslog.target
 Before=trousers.service
+After=ii2c.service
 Requires=ii2c.service
 
 [Service]
