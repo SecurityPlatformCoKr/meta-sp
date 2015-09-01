@@ -3,6 +3,7 @@ Description=DHCP service
 After=systemd-neworkd.service
 
 [Service]
+ExecStartPre=/bin/rm -f /var/lib/misc/udhcpd.leases
 ExecStart=/usr/sbin/udhcpd -f /etc/udhcpd.conf
 Restart=always
 RestartSec=5
