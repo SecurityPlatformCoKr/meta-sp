@@ -1,0 +1,13 @@
+diff --git a/clloader.c b/clloader.c
+index 73a0296..586871f 100644
+--- a/clloader.c
++++ b/clloader.c
+@@ -2634,7 +2634,7 @@ int clantonLoaderFSM(int argc, char * argv[])
+ 					slave_args[0] = CLANTON_SKETCHPROGRAM;    /* Name of process */
+ 					slave_args[1] = slavename;		  /* Serial.write => ttyGS0 */
+ 					slave_args[2] = NULL;
+-					fprintf(stderr, "Starting %s %s %s\n", slave_args[0], slave_args[1]);
++					fprintf(stderr, "Starting %s %s\n", slave_args[0], slave_args[1]);
+ 					if ( execvp(slave_args[0], slave_args) < 0){
+ 						fprintf(stderr, "unable to exevp - may not exist%s %s\n", slave_args[0], slave_args[1]);
+ 						return -1;
