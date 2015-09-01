@@ -1,0 +1,99 @@
+diff -urNp openssl_tpm_engine-0.4.2.a/create_tpm_key.c openssl_tpm_engine-0.4.2.b/create_tpm_key.c
+--- openssl_tpm_engine-0.4.2.a/create_tpm_key.c	2011-01-21 03:24:04.000000000 +0900
++++ openssl_tpm_engine-0.4.2.b/create_tpm_key.c	2015-08-28 14:40:22.324771869 +0900
+@@ -73,6 +73,7 @@ usage(char *argv0)
+ 		"\t\t-a|--auth        require a password for the key [NO]\n"
+ 		"\t\t-p|--popup       use TSS GUI popup dialogs to get the password "
+ 		"for the\n\t\t\t\t key [NO] (implies --auth)\n"
++		"\t\t-z               use well-known password for the key\n"
+ 		"\t\t-w|--wrap [file] wrap an existing openssl PEM key\n"
+ 		"\t\t-h|--help        print this help message\n"
+ 		"\nReport bugs to %s\n",
+@@ -146,7 +147,7 @@ int main(int argc, char **argv)
+ 	unsigned char	*blob_asn1 = NULL;
+ 	int		asn1_len;
+ 	char		*filename, c, *openssl_key = NULL;
+-	int		option_index, auth = 0, popup = 0, wrap = 0;
++	int		option_index, auth = 0, popup = 0, wrap = 0, zero=0;
+ 	UINT32		enc_scheme = TSS_ES_RSAESPKCSV15;
+ 	UINT32		sig_scheme = TSS_SS_RSASSAPKCS1V15_DER;
+ 	UINT32		key_size = 2048;
+@@ -154,7 +155,7 @@ int main(int argc, char **argv)
+ 
+ 	while (1) {
+ 		option_index = 0;
+-		c = getopt_long(argc, argv, "pe:q:s:ahw:",
++		c = getopt_long(argc, argv, "pe:q:s:ahw:z",
+ 				long_options, &option_index);
+ 		if (c == -1)
+ 			break;
+@@ -194,6 +195,9 @@ int main(int argc, char **argv)
+ 				wrap = 1;
+ 				openssl_key = optarg;
+ 				break;
++			case 'z':
++				zero = 1;
++				break;
+ 			default:
+ 				usage(argv[0]);
+ 				break;
+@@ -309,22 +313,36 @@ int main(int argc, char **argv)
+ 			exit(result);
+ 		}
+ 
+-		if (EVP_read_pw_string(authdata, 128, "SRK Password: ", 0)) {
+-			Tspi_Context_CloseObject(hContext, hKey);
+-			Tspi_Context_Close(hContext);
+-			free(authdata);
+-			exit(result);
+-		}
++		if (zero) {
++			BYTE wellknown[] = TSS_WELL_KNOWN_SECRET;
++			//Set Secret
++			if ((result = Tspi_Policy_SetSecret(srkUsagePolicy,
++							    TSS_SECRET_MODE_SHA1,
++							    sizeof(wellknown),
++							    (BYTE *)wellknown))) {
++				print_error("Tspi_Policy_SetSecret", result);
++				free(authdata);
++				Tspi_Context_Close(hContext);
++				exit(result);
++			}
++		} else {
++			if (EVP_read_pw_string(authdata, 128, "SRK Password: ", 0)) {
++				Tspi_Context_CloseObject(hContext, hKey);
++				Tspi_Context_Close(hContext);
++				free(authdata);
++				exit(result);
++			}
+ 
+-		//Set Secret
+-		if ((result = Tspi_Policy_SetSecret(srkUsagePolicy,
+-						    TSS_SECRET_MODE_PLAIN,
+-						    strlen(authdata),
+-						    (BYTE *)authdata))) {
+-			print_error("Tspi_Policy_SetSecret", result);
+-			free(authdata);
+-			Tspi_Context_Close(hContext);
+-			exit(result);
++			//Set Secret
++			if ((result = Tspi_Policy_SetSecret(srkUsagePolicy,
++							    TSS_SECRET_MODE_PLAIN,
++							    strlen(authdata),
++							    (BYTE *)authdata))) {
++				print_error("Tspi_Policy_SetSecret", result);
++				free(authdata);
++				Tspi_Context_Close(hContext);
++				exit(result);
++			}
+ 		}
+ 
+ 		free(authdata);
+@@ -376,7 +394,6 @@ int main(int argc, char **argv)
+ 				Tspi_Context_Close(hContext);
+ 				exit(result);
+ 			}
+-
+ 			free(authdata);
+ 		}
+ 
