@@ -6,13 +6,14 @@ PR = "r0"
 LICENSE = "CPL-1.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=bd4ffd842ba5784fc7bc7d82bc901c5b"
 
-DEPENDS = "openssl"
+DEPENDS = "openssl trousers"
 SRC_URI += "http://downloads.sourceforge.net/project/opencryptoki/opencryptoki/${PV}/${PN}-v${PV}.tgz \
 	file://host_include_not_allowed.patch \
+	file://fix_wellknown_processing.patch \
 	"
 #	file://pkcs11_startup.patch 
-SRC_URI[md5sum] = "9c3b3ff3d935e09bfa132f2951d4c859"
-SRC_URI[sha256sum] = "d0b4676766753449f4d9001436cf8371812ddff7b59869e8d5adef94c4fd261b"
+SRC_URI[md5sum] = "df6a738460ac6be657de72abf4fcf21c"
+SRC_URI[sha256sum] = "9e056f520147f1e55fa9ab9661b4a7b8589d9b13fa3bb1f122c6a0a79d416bb5"
 
 inherit autotools gettext useradd systemd
 
@@ -23,7 +24,7 @@ GROUPADD_PARAM_${PN} = "pkcs11"
 
 SYSTEMD_SERVICE_${PN} = "pkcsslotd.service"
 
-PACKAGES =+ "lib${PN}-tpm lib${PN}-cca lib${PN}-sw \
+PACKAGES =+ "lib${PN}-tpm     lib${PN}-cca     lib${PN}-sw \
 	    "
 
 FILES_${PN} += " \
@@ -42,38 +43,33 @@ FILES_${PN} += " \
 FILES_lib${PN}-sw += " \
 	${libdir}/opencryptoki/stdll/libpkcs11_sw.so.0.0.0 \
 	${libdir}/opencryptoki/stdll/libpkcs11_sw.so.0 \
+	/run/lock/opencryptoki/swtok \
 	"
 
 FILES_lib${PN}-cca += " \
 	${libdir}/opencryptoki/stdll/libpkcs11_cca.so.0.0.0 \
 	${libdir}/opencryptoki/stdll/libpkcs11_cca.so.0 \
+	/run/lock/opencryptoki/ccatok \
 	"
 
 FILES_${PN}-dev += " \
-	/usr/lib/pkcs11/PKCS11_API.so \
-	/usr/lib/pkcs11/libopencryptoki.so \
-	/usr/lib/opencryptoki/PKCS11_API.so \
-	/usr/lib/opencryptoki/libopencryptoki.so \
-	/usr/lib/opencryptoki/stdll/ \
-	/usr/lib/opencryptoki/stdll/*.la \
-	/usr/lib/opencryptoki/stdll/libpkcs11_sw.so \
-	/usr/lib/opencryptoki/stdll/PKCS11_SW.so \
-	/usr/lib/opencryptoki/stdll/libpkcs11_cca.so \
-	/usr/lib/opencryptoki/stdll/PKCS11_CCA.so \
-	${libdir}/opencryptoki/stdll/libpkcs11_tpm.so \
-	${libdir}/opencryptoki/stdll/PKCS11_TPM.so \
+	${libdir}/pkcs11/PKCS11_API.so \
+	${libdir}/pkcs11/libopencryptoki.so \
+	${libdir}/opencryptoki/PKCS11_API.so \
+	${libdir}/opencryptoki/libopencryptoki.so \
+	${libdir}/opencryptoki/stdll/ \
+	${libdir}/opencryptoki/stdll/*.la \
 	"
-
 FILES_lib${PN}-tpm += " \
 	${libdir}/opencryptoki/stdll/libpkcs11_tpm.so.0.0.0 \
 	${libdir}/opencryptoki/stdll/libpkcs11_tpm.so.0 \
+	/run/lock/opencryptoki/tpm \
 	"
 
 FILES_${PN}-dbg += " \
 	${libdir}/opencryptoki/stdll/.debug \
 	/etc/rc.d* \
 	"
-
 RDEPENDS_lib${PN}-tpm  += "opencryptoki"
 RDEPENDS_lib${PN}-sw  += "opencryptoki"
 RDEPENDS_lib${PN}-cca  += "opencryptoki"
@@ -86,4 +82,21 @@ do_unpack() {
 
 do_configure_prepend() {
     sh bootstrap.sh
+}
+
+pkg_postinst_${PN} () {
+/bin/grep -q include /etc/ld.so.conf || /bin/echo 'include /etc/ld.so.conf.d/*.conf' >> /etc/ld.so.conf && /sbin/ldconfig
+}
+
+pkg_postinst_lib${PN}-tpm () {
+    ln -sf libpkcs11_tpm.so.0.0.0 /usr/lib/opencryptoki/stdll/libpkcs11_tpm.so
+    ln -sf libpkcs11_tpm.so /usr/lib/opencryptoki/stdll/PKCS11_TPM.so
+}
+pkg_postinst_lib${PN}-sw () {
+    ln -sf libpkcs11_sw.so.0.0.0 /usr/lib/opencryptoki/stdll/libpkcs11_sw.so
+    ln -sf libpkcs11_sw.so /usr/lib/opencryptoki/stdll/PKCS11_TPM.so
+}
+pkg_postinst_lib${PN}-cca () {
+    ln -sf libpkcs11_cca.so.0.0.0 /usr/lib/opencryptoki/stdll/libpkcs11_cca.so
+    ln -sf libpkcs11_cca.so /usr/lib/opencryptoki/stdll/PKCS11_TPM.so
 }

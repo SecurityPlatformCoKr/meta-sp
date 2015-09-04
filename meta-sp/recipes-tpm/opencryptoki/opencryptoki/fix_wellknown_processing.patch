@@ -1,0 +1,38 @@
+diff --git a/usr/lib/pkcs11/tpm_stdll/tpm_util.c b/usr/lib/pkcs11/tpm_stdll/tpm_util.c
+index 768ad67..199e144 100644
+--- a/usr/lib/pkcs11/tpm_stdll/tpm_util.c
++++ b/usr/lib/pkcs11/tpm_stdll/tpm_util.c
+@@ -254,6 +254,7 @@ get_srk_info(struct srk_info *srk)
+ {
+ 	char *passwd_ptr = NULL;
+ 	char *secret = NULL;
++	BYTE wellknown[] = TSS_WELL_KNOWN_SECRET;
+ 	int i;
+ 
+ 	srk->mode = get_srk_mode();
+@@ -265,12 +266,13 @@ get_srk_info(struct srk_info *srk)
+ 
+ 	/* If nothing is set, then use original opencryptoki default of
+ 	 *  secret is NULL and TSS_SECRET_MODE_PLAIN. 
++	 * secret is TSS_WELL_KNOWN_SECRET and mode TSS_SECRET_MODE_SHA1
+ 	 */
+ 	if (passwd_ptr == NULL) {
+-		srk->len = 0;
++		srk->len = sizeof(wellknown);
++		passwd_ptr = wellknown;
+ 		if (srk->mode == 0) {
+-			srk->mode = TSS_SECRET_MODE_PLAIN;
+-			return 0;
++			srk->mode = TSS_SECRET_MODE_SHA1;
+ 		}
+ 	} else
+ 		srk->len = strlen(passwd_ptr);	
+@@ -298,7 +300,7 @@ get_srk_info(struct srk_info *srk)
+ 	/* Secrets that are a hash, need to be converted from a
+ 	 *  hex string to an array of bytes.
+ 	 */
+-	if (srk->mode == TSS_SECRET_MODE_SHA1) {
++	if (srk->mode == TSS_SECRET_MODE_SHA1 && passwd_ptr != wellknown) {
+ 
+ 		char *secret_h;
+ 		int h_len = TPM_SHA1_160_HASH_LEN;
