@@ -23,3 +23,5 @@ do_install_append() {
 
 FILES_${PN} += "/root/.ssh/config \
 		"
+CONFFILES_${PN} += "/root/.ssh/config \
+		"
