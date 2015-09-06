@@ -1,0 +1,11 @@
+diff -urNp ecryptfs-utils-104.a/src/utils/ecryptfs_generate_tpm_key.c ecryptfs-utils-104.b/src/utils/ecryptfs_generate_tpm_key.c
+--- ecryptfs-utils-104.a/src/utils/ecryptfs_generate_tpm_key.c	2015-02-05 18:16:12.089843915 +0000
++++ ecryptfs-utils-104.b/src/utils/ecryptfs_generate_tpm_key.c	2015-02-05 18:11:00.503906378 +0000
+@@ -257,6 +257,7 @@ int main(int argc, char **argv)
+ 	}
+ 	printf("And registered in persistent storage with UUID "
+ 	       "(tspi_uuid parameter): %s\n", uuidString);
++	printf("key=tspi:tspi_uuid=%s,ecryptfs_cipher=aes,ecryptfs_key_bytes=16,ecryptfs_passthrough=n,ecryptfs_enable_filename_crypto=n,no_sig_cache\n", uuidString);
+ 	Tspi_Context_FreeMemory(hContext, (BYTE *)uuid);
+ 	free(uuidString);
+ 	Tspi_Context_Close(hContext);
