@@ -29,7 +29,7 @@ EXTRA_OECONF += "IPROUTE=/sbin/ip"
 EXTRA_OECONF += "SYSTEMD_ASK_PASSWORD=/bin/systemd-ask-password"
 
 do_install_append() {
-    install -d ${D}/var/lib/openvpn
+    install -d ${D}/secure/openvpn
     install -d ${D}${systemd_unitdir}/system/
     install -m 0644 ${WORKDIR}/openvpn@.service ${D}${systemd_unitdir}/system/
     install -d ${D}${sysconfdir}/openvpn
@@ -43,7 +43,7 @@ SYSTEMD_AUTO_ENABLE = "disable"
 
 FILES_${PN}-dbg += "${libdir}/openvpn/plugins/.debug"
 FILES_${PN} += "${systemd_unitdir}/system/openvpn@.service \
-		/var/lib/openvpn \
+		/secure/openvpn \
 		"
 
 PACKAGES =+ "${PN}-server ${PN}-client"
@@ -52,3 +52,5 @@ FILES_${PN}-server = "${sysconfdir}/openvpn/server.conf"
 FILES_${PN}-client = "${sysconfdir}/openvpn/client.conf"
 CONFFILES_${PN}-server = "${sysconfdir}/openvpn/server.conf"
 CONFFILES_${PN}-client = "${sysconfdir}/openvpn/client.conf"
+
+RDEPENDS_${PN} += " ecryptfs-utils"

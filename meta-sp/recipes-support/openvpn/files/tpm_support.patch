@@ -1,0 +1,177 @@
+diff --git a/doc/openvpn.8 b/doc/openvpn.8
+index 203dd46..0a21a9a 100644
+--- a/doc/openvpn.8
++++ b/doc/openvpn.8
+@@ -4348,6 +4348,10 @@ when you built your peer's certificate (see
+ above).
+ .\"*********************************************************
+ .TP
++.B \-\-key-engine name
++OpenSSL engine to use to load the private key. For example "tpm".
++.\"*********************************************************
++.TP
+ .B \-\-tls\-version\-min version ['or\-highest']
+ Enable TLS version negotiation, and set the minimum
+ TLS version we will accept from the peer (default is "1.0").
+diff --git a/src/openvpn/options.c b/src/openvpn/options.c
+index 007bd8c..2a9e881 100644
+--- a/src/openvpn/options.c
++++ b/src/openvpn/options.c
+@@ -1592,6 +1592,7 @@ show_settings (const struct options *o)
+   else
+ #endif
+   SHOW_STR (priv_key_file);
++  SHOW_STR (priv_key_engine);
+ #ifndef ENABLE_CRYPTO_POLARSSL
+   SHOW_STR (pkcs12_file);
+ #endif
+@@ -2190,6 +2191,8 @@ options_postprocess_verify_ce (const struct options *options, const struct conne
+ 	  msg(M_USAGE, "Parameter --cert cannot be used when --pkcs11-provider is also specified.");
+ 	if (options->priv_key_file)
+ 	  msg(M_USAGE, "Parameter --key cannot be used when --pkcs11-provider is also specified.");
++	if (options->priv_key_engine)
++	  msg(M_USAGE, "Parameter --key-engine cannot be used when --pkcs11-provider is also specified.");
+ #ifdef MANAGMENT_EXTERNAL_KEY
+ 	if (options->management_flags & MF_EXTERNAL_KEY)
+ 	  msg(M_USAGE, "Parameter --management-external-key cannot be used when --pkcs11-provider is also specified.");
+@@ -2219,6 +2222,8 @@ options_postprocess_verify_ce (const struct options *options, const struct conne
+ 	    msg(M_USAGE, "Parameter --cert cannot be used when --cryptoapicert is also specified.");
+           if (options->priv_key_file)
+ 	    msg(M_USAGE, "Parameter --key cannot be used when --cryptoapicert is also specified.");
++          if (options->priv_key_engine)
++	    msg(M_USAGE, "Parameter --key-engine cannot be used when --cryptoapicert is also specified.");
+           if (options->pkcs12_file)
+ 	    msg(M_USAGE, "Parameter --pkcs12 cannot be used when --cryptoapicert is also specified.");
+ #ifdef MANAGMENT_EXTERNAL_KEY
+@@ -2239,6 +2244,8 @@ options_postprocess_verify_ce (const struct options *options, const struct conne
+ 	    msg(M_USAGE, "Parameter --cert cannot be used when --pkcs12 is also specified.");
+           if (options->priv_key_file)
+ 	    msg(M_USAGE, "Parameter --key cannot be used when --pkcs12 is also specified.");
++          if (options->priv_key_engine)
++	    msg(M_USAGE, "Parameter --key-engine cannot be used when --pkcs12 is also specified.");
+ #ifdef MANAGMENT_EXTERNAL_KEY
+           if (options->management_flags & MF_EXTERNAL_KEY)
+ 	    msg(M_USAGE, "Parameter --external-management-key cannot be used when --pkcs12 is also specified.");
+@@ -2307,6 +2314,7 @@ options_postprocess_verify_ce (const struct options *options, const struct conne
+       MUST_BE_UNDEF (dh_file);
+       MUST_BE_UNDEF (cert_file);
+       MUST_BE_UNDEF (priv_key_file);
++      MUST_BE_UNDEF (priv_key_engine);
+ #ifndef ENABLE_CRYPTO_POLARSSL
+       MUST_BE_UNDEF (pkcs12_file);
+ #endif
+@@ -6619,6 +6627,11 @@ add_option (struct options *options,
+ 	  options->priv_key_file_inline = p[2];
+ 	}
+     }
++  else if (streq (p[0], "key-engine") && p[1])
++    {
++      VERIFY_PERMISSION (OPT_P_GENERAL);
++      options->priv_key_engine = p[1];
++    }
+   else if (streq (p[0], "tls-version-min") && p[1])
+     {
+       int ver;
+diff --git a/src/openvpn/options.h b/src/openvpn/options.h
+index af9a47f..52fcffb 100644
+--- a/src/openvpn/options.h
++++ b/src/openvpn/options.h
+@@ -507,6 +507,7 @@ struct options
+   const char *cert_file;
+   const char *extra_certs_file;
+   const char *priv_key_file;
++  const char *priv_key_engine;
+   const char *pkcs12_file;
+   const char *cipher_list;
+   const char *tls_verify;
+diff --git a/src/openvpn/ssl.c b/src/openvpn/ssl.c
+index a17c738..e8c3880 100644
+--- a/src/openvpn/ssl.c
++++ b/src/openvpn/ssl.c
+@@ -537,7 +537,7 @@ init_ssl (const struct options *options, struct tls_root_ctx *new_ctx)
+       /* Load Private Key */
+       if (options->priv_key_file)
+ 	{
+-          if (0 != tls_ctx_load_priv_file(new_ctx, options->priv_key_file, options->priv_key_file_inline))
++          if (0 != tls_ctx_load_priv_file(new_ctx, options->priv_key_engine, options->priv_key_file, options->priv_key_file_inline))
+             goto err;
+ 	}
+     }
+diff --git a/src/openvpn/ssl_backend.h b/src/openvpn/ssl_backend.h
+index 6d47bd0..da8848f 100644
+--- a/src/openvpn/ssl_backend.h
++++ b/src/openvpn/ssl_backend.h
+@@ -237,7 +237,7 @@ void tls_ctx_load_cert_file (struct tls_root_ctx *ctx, const char *cert_file,
+  * @return 			1 if an error occurred, 0 if parsing was
+  * 				successful.
+  */
+-int tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
++int tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine, const char *priv_key_file,
+     const char *priv_key_file_inline
+     );
+ 
+diff --git a/src/openvpn/ssl_openssl.c b/src/openvpn/ssl_openssl.c
+index be33caa..ec5b200 100644
+--- a/src/openvpn/ssl_openssl.c
++++ b/src/openvpn/ssl_openssl.c
+@@ -576,8 +576,8 @@ tls_ctx_free_cert_file (X509 *x509)
+ }
+ 
+ int
+-tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
+-    const char *priv_key_file_inline
++tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine,
++    const char *priv_key_file, const char *priv_key_file_inline
+     )
+ {
+   int status;
+@@ -598,9 +598,21 @@ tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
+   if (!in)
+     goto end;
+ 
+-  pkey = PEM_read_bio_PrivateKey (in, NULL,
++  if (priv_key_engine) {
++    ENGINE *engine;
++
++    ENGINE_load_builtin_engines();
++    engine = ENGINE_by_id(priv_key_engine);
++    if (!ENGINE_init(engine)) {
++      msg (M_WARN|M_SSL, "Cannot init engine %s", priv_key_engine);
++      goto end;
++    }
++    pkey = ENGINE_load_private_key(engine, priv_key_file, UI_OpenSSL(), NULL);
++  } else {
++    pkey = PEM_read_bio_PrivateKey (in, NULL,
+                                   ssl_ctx->default_passwd_callback,
+                                   ssl_ctx->default_passwd_callback_userdata);
++  }
+   if (!pkey)
+     goto end;
+ 
+diff --git a/src/openvpn/ssl_openssl.h b/src/openvpn/ssl_openssl.h
+index 73a6c49..3c6bd9c 100644
+--- a/src/openvpn/ssl_openssl.h
++++ b/src/openvpn/ssl_openssl.h
+@@ -31,6 +31,7 @@
+ #define SSL_OPENSSL_H_
+ 
+ #include <openssl/ssl.h>
++#include <openssl/engine.h>
+ 
+ /**
+  * SSL_OP_NO_TICKET tells OpenSSL to disable "stateless session resumption",
+diff --git a/src/openvpn/ssl_polarssl.c b/src/openvpn/ssl_polarssl.c
+index 30c7395..c85bd30 100644
+--- a/src/openvpn/ssl_polarssl.c
++++ b/src/openvpn/ssl_polarssl.c
+@@ -265,8 +265,8 @@ tls_ctx_load_cert_file (struct tls_root_ctx *ctx, const char *cert_file,
+ }
+ 
+ int
+-tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
+-    const char *priv_key_inline
++tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine,
++    const char *priv_key_file, const char *priv_key_inline
+     )
+ {
+   int status;

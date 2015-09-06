@@ -1,10 +1,11 @@
 [Unit]
 Description=OpenVPN connection to %i
 After=network.target
+After=mount-secure.service
 
 [Service]
 Type=forking
-ExecStart=/usr/sbin/openvpn --daemon ovpn-%i --status /var/run/openvpn_%i.status 10 --cd /var/lib/openvpn --config /etc/openvpn/%i.conf --auth-nocache
+ExecStart=/usr/sbin/openvpn --daemon ovpn-%i --status /var/run/openvpn_%i.status 10 --cd /secure/openvpn --config /etc/openvpn/%i.conf --auth-nocache
 ExecReload=/bin/kill -HUP $MAINPID
 WorkingDirectory=/var/lib/openvpn
 
