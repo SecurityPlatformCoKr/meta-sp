@@ -38,6 +38,7 @@ FILES_${PN} += " \
 	${libdir}/pkcs11/PKCS11_API.so \
 	${systemd_unitdir}/system/pkcsslotd.service \
 	${libdir}/opencryptoki/stdll \
+	/var/lock/opencryptoki \
 	"
 
 FILES_lib${PN}-sw += " \
@@ -82,6 +83,10 @@ do_unpack() {
 
 do_configure_prepend() {
     sh bootstrap.sh
+}
+
+do_install_append() {
+    install -d ${D}/var/lock/opencryptoki
 }
 
 pkg_postinst_${PN} () {
