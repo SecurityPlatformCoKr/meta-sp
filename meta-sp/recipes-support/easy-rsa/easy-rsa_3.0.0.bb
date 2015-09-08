@@ -13,15 +13,18 @@ do_compile() {
 }
 
 do_install() {
-    install -d ${D}/usr/share/
-    tar zxf ${WORKDIR}/git/EasyRSA-${PV}.tgz -C ${D}/usr/share/
-    mv ${D}/usr/share/EasyRSA-${PV} ${D}/usr/share/${PN}
+    install -d ${D}/secure/${PN}
+    mkdir ${WORKDIR}/tar
+    tar zxf ${WORKDIR}/git/EasyRSA-${PV}.tgz  -C ${WORKDIR}/tar
+    mv ${WORKDIR}/tar/EasyRSA-${PV}/* ${D}/secure/${PN}
+    rmdir ${WORKDIR}/tar/EasyRSA-${PV}
+    rmdir ${WORKDIR}/tar
 }
 
-FILES_${PN}-doc="/usr/share/${PN}/doc/* \
-		 /usr/share/${PN}/README.quickstart.md \
-		 /usr/share/${PN}/ChangeLog \
-		 /usr/share/${PN}/COPYING \
-		 /usr/share/${PN}/Licensing/* \
+FILES_${PN}-doc="/secure/${PN}/doc/* \
+		 /secure/${PN}/README.quickstart.md \
+		 /secure/${PN}/ChangeLog \
+		 /secure/${PN}/COPYING \
+		 /secure/${PN}/Licensing/* \
 		"
-FILES_${PN}="/usr/share/${PN}/*"
+FILES_${PN}="/secure/${PN}/*"
