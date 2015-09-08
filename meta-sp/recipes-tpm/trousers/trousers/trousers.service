@@ -1,6 +1,7 @@
 [Unit]
 Description="tcsd belongs to the TrouSerS TCG Software Stack"
 After=syslog.target
+Before=network.target
 
 [Service]
 Type=forking
