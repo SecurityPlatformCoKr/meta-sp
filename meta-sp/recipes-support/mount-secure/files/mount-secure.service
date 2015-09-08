@@ -1,10 +1,12 @@
 [Unit]
 Description=secure filesystem mounter using ecryptfs
 Requires=ecryptfs.service
-After=ecryptfs.service
+Before=network.target
          
-[Service]                            
-ExecStart=/usr/sbin/mount.ecryptfs.sh
+[Service]
+RemainAfterExit=yes
+ExecStart=/usr/sbin/mount-secure.sh
+ExecStop=/bin/sh -c "/bin/umount /secure"
 
 [Install]                 
 WantedBy=multi-user.target
