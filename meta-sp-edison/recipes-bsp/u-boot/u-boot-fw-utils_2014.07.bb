@@ -6,7 +6,6 @@ SECTION = "bootloader"
 require u-boot-internal.inc
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
-SRC_URI += "file://fw_env.config"
 
 EXTRA_OEMAKE = 'CROSS_COMPILE=${TARGET_PREFIX} CC="${TARGET_PREFIX}gcc ${TOOLCHAIN_OPTIONS}"'
 
@@ -20,11 +19,8 @@ do_install () {
   install -m 755 ${S}/tools/env/fw_printenv_unstripped ${D}${sbindir}/fw_printenv
   # This is not a typo, this tool checks the args[0] to change its behavior a-la-busybox
   install -m 755 ${S}/tools/env/fw_printenv_unstripped ${D}${sbindir}/fw_setenv
-  install -d ${D}${sysconfdir}
-  install -m 0644 ${WORKDIR}/fw_env.config ${D}${sysconfdir}/
 }
 
 FILES_${PN} = "${sbindir}/*"
-FILES_${PN} += "${sysconfdir}/fw_env.config"
 
 DEPENDS = "u-boot"

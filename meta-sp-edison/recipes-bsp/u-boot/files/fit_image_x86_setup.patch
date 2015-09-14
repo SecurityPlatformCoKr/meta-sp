@@ -1,0 +1,626 @@
+diff --git a/arch/x86/include/asm/bootm.h b/arch/x86/include/asm/bootm.h
+index e69de29..f6a64ce 100644
+--- a/arch/x86/include/asm/bootm.h
++++ b/arch/x86/include/asm/bootm.h
+@@ -0,0 +1,28 @@
++/*
++ * Copyright (c) 2013, Google Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ */
++
++#ifndef ARM_BOOTM_H
++#define ARM_BOOTM_H
++
++void bootm_announce_and_cleanup(void);
++
++/**
++ * boot_linux_kernel() - boot a linux kernel
++ *
++ * This boots a kernel image, either 32-bit or 64-bit. It will also work with
++ * a self-extracting kernel, if you set @image_64bit to false.
++ *
++ * @setup_base:		Pointer to the setup.bin information for the kernel
++ * @load_address:	Pointer to the start of the kernel image
++ * @image_64bit:	true if the image is a raw 64-bit kernel, false if it
++ *			is raw 32-bit or any type of self-extracting kernel
++ *			such as a bzImage.
++ * @return -ve error code. This function does not return if the kernel was
++ * booted successfully.
++ */
++int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit);
++
++#endif
+diff --git a/arch/x86/include/asm/zimage.h b/arch/x86/include/asm/zimage.h
+index 0f36662..8e7dd42 100644
+--- a/arch/x86/include/asm/zimage.h
++++ b/arch/x86/include/asm/zimage.h
+@@ -35,10 +35,8 @@
+ unsigned install_e820_map(unsigned max_entries, struct e820entry *);
+ 
+ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
+-				void **load_address);
++				ulong *load_addressp);
+ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
+ 		 unsigned long initrd_addr, unsigned long initrd_size);
+ 
+-void boot_zimage(void *setup_base, void *load_address);
+-
+ #endif
+diff --git a/arch/x86/lib/bootm.c b/arch/x86/lib/bootm.c
+index ff158dd..b90ca65 100644
+--- a/arch/x86/lib/bootm.c
++++ b/arch/x86/lib/bootm.c
+@@ -10,80 +10,189 @@
+ 
+ #include <common.h>
+ #include <command.h>
++#include <errno.h>
++#include <fdt_support.h>
+ #include <image.h>
+ #include <u-boot/zlib.h>
+ #include <asm/bootparam.h>
+ #include <asm/byteorder.h>
+ #include <asm/zimage.h>
++#ifdef CONFIG_SYS_COREBOOT
++#include <asm/arch/timestamp.h>
++#endif
+ 
+ #define COMMAND_LINE_OFFSET 0x9000
+ 
+-/*cmd_boot.c*/
+-int do_bootm_linux(int flag, int argc, char * const argv[],
+-		bootm_headers_t *images)
++/*
++ * Implement a weak default function for boards that optionally
++ * need to clean up the system before jumping to the kernel.
++ */
++__weak void board_final_cleanup(void)
+ {
+-	struct boot_params *base_ptr = NULL;
+-	ulong os_data, os_len;
+-	image_header_t *hdr;
+-	void *load_address;
++}
+ 
+-#if defined(CONFIG_FIT)
+-	const void	*data;
+-	size_t		len;
++void bootm_announce_and_cleanup(void)
++{
++	printf("\nStarting kernel ...\n\n");
++
++#ifdef CONFIG_SYS_COREBOOT
++	timestamp_add_now(TS_U_BOOT_START_KERNEL);
++#endif
++	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
++#ifdef CONFIG_BOOTSTAGE_REPORT
++	bootstage_report();
+ #endif
++	board_final_cleanup();
++}
+ 
+-	if (flag & BOOTM_STATE_OS_PREP)
+-		return 0;
+-	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+-		return 1;
++#if defined(CONFIG_OF_LIBFDT) && !defined(CONFIG_OF_NO_KERNEL)
++int arch_fixup_memory_node(void *blob)
++{
++	bd_t	*bd = gd->bd;
++	int bank;
++	u64 start[CONFIG_NR_DRAM_BANKS];
++	u64 size[CONFIG_NR_DRAM_BANKS];
++
++	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
++		start[bank] = bd->bi_dram[bank].start;
++		size[bank] = bd->bi_dram[bank].size;
++	}
++
++	return fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
++}
++#endif
++
++/* Subcommand: PREP */
++static int boot_prep_linux(bootm_headers_t *images)
++{
++	char *cmd_line_dest = NULL;
++	image_header_t *hdr;
++	int is_zimage = 0;
++	void *data = NULL;
++	size_t len;
++	int ret;
+ 
++#ifdef CONFIG_OF_LIBFDT
++	if (images->ft_len) {
++		debug("using: FDT\n");
++		if (image_setup_linux(images)) {
++			puts("FDT creation failed! hanging...");
++			hang();
++		}
++	}
++#endif
+ 	if (images->legacy_hdr_valid) {
+ 		hdr = images->legacy_hdr_os;
+ 		if (image_check_type(hdr, IH_TYPE_MULTI)) {
++			ulong os_data, os_len;
++
+ 			/* if multi-part image, we need to get first subimage */
+ 			image_multi_getimg(hdr, 0, &os_data, &os_len);
++			data = (void *)os_data;
++			len = os_len;
+ 		} else {
+ 			/* otherwise get image data */
+-			os_data = image_get_data(hdr);
+-			os_len = image_get_data_size(hdr);
++			data = (void *)image_get_data(hdr);
++			len = image_get_data_size(hdr);
+ 		}
++		is_zimage = 1;
+ #if defined(CONFIG_FIT)
+-	} else if (images->fit_uname_os) {
+-		int ret;
+-
++	} else if (images->fit_uname_os && is_zimage) {
+ 		ret = fit_image_get_data(images->fit_hdr_os,
+-					images->fit_noffset_os, &data, &len);
++				images->fit_noffset_os,
++				(const void **)&data, &len);
+ 		if (ret) {
+ 			puts("Can't get image data/size!\n");
+ 			goto error;
+ 		}
+-		os_data = (ulong)data;
+-		os_len = (ulong)len;
++		is_zimage = 1;
+ #endif
+-	} else {
+-		puts("Could not find kernel image!\n");
+-		goto error;
+ 	}
+ 
+-#ifdef CONFIG_CMD_ZBOOT
+-	base_ptr = load_zimage((void *)os_data, os_len, &load_address);
+-#endif
++	if (is_zimage) {
++		ulong load_address;
++		char *base_ptr;
+ 
+-	if (NULL == base_ptr) {
+-		printf("## Kernel loading failed ...\n");
++		base_ptr = (char *)load_zimage(data, len, &load_address);
++		images->os.load = load_address;
++		cmd_line_dest = base_ptr + COMMAND_LINE_OFFSET;
++		images->ep = (ulong)base_ptr;
++	} else if (images->ep) {
++		cmd_line_dest = (void *)images->ep + COMMAND_LINE_OFFSET;
++	} else {
++		printf("## Kernel loading failed (no setup) ...\n");
+ 		goto error;
+ 	}
+ 
+-	if (setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
++	printf("Setup at %#08lx\n", images->ep);
++	ret = setup_zimage((void *)images->ep, cmd_line_dest,
+ 			0, images->rd_start,
+-			images->rd_end - images->rd_start)) {
++			images->rd_end - images->rd_start);
++
++	if (ret) {
+ 		printf("## Setting up boot parameters failed ...\n");
+-		goto error;
++		return 1;
+ 	}
+ 
+-	boot_zimage(base_ptr, load_address);
+-	/* does not return */
++	return 0;
+ 
+ error:
+ 	return 1;
+ }
++
++int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
++{
++	bootm_announce_and_cleanup();
++
++#ifdef CONFIG_SYS_COREBOOT
++	timestamp_add_now(TS_U_BOOT_START_KERNEL);
++#endif
++	if (image_64bit) {
++		/* TODO(boot 64-bit kernel) */
++	} else {
++		/*
++		* Set %ebx, %ebp, and %edi to 0, %esi to point to the
++		* boot_params structure, and then jump to the kernel. We
++		* assume that %cs is 0x10, 4GB flat, and read/execute, and
++		* the data segments are 0x18, 4GB flat, and read/write.
++		* U-boot is setting them up that way for itself in
++		* arch/i386/cpu/cpu.c.
++		*/
++		__asm__ __volatile__ (
++		"movl $0, %%ebp\n"
++		"cli\n"
++		"jmp *%[kernel_entry]\n"
++		:: [kernel_entry]"a"(load_address),
++		[boot_params] "S"(setup_base),
++		"b"(0), "D"(0)
++		);
++	}
++
++	/* We can't get to here */
++	return -EFAULT;
++}
++
++/* Subcommand: GO */
++static int boot_jump_linux(bootm_headers_t *images)
++{
++	debug("## Transferring control to Linux (at address %08lx, kernel %08lx) ...\n",
++	      images->ep, images->os.load);
++
++	return boot_linux_kernel(images->ep, images->os.load, false);
++}
++
++int do_bootm_linux(int flag, int argc, char * const argv[],
++		bootm_headers_t *images)
++{
++	/* No need for those on x86 */
++	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
++		return -1;
++
++	if (flag & BOOTM_STATE_OS_PREP)
++		return boot_prep_linux(images);
++
++	if (flag & BOOTM_STATE_OS_GO)
++		return boot_jump_linux(images);
++
++	return boot_jump_linux(images);
++}
+diff --git a/arch/x86/lib/zimage.c b/arch/x86/lib/zimage.c
+index e1387bb..3997b0c 100644
+--- a/arch/x86/lib/zimage.c
++++ b/arch/x86/lib/zimage.c
+@@ -18,6 +18,7 @@
+ #include <asm/ptrace.h>
+ #include <asm/zimage.h>
+ #include <asm/byteorder.h>
++#include <asm/bootm.h>
+ #include <asm/bootparam.h>
+ #ifdef CONFIG_SYS_COREBOOT
+ #include <asm/arch/timestamp.h>
+@@ -102,7 +103,7 @@ static int get_boot_protocol(struct setup_header *hdr)
+ }
+ 
+ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
+-				void **load_address)
++				ulong *load_addressp)
+ {
+ 	struct boot_params *setup_base;
+ 	int setup_size;
+@@ -154,9 +155,9 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
+ 
+ 	/* Determine load address */
+ 	if (big_image)
+-		*load_address = (void *)BZIMAGE_LOAD_ADDR;
++		*load_addressp = BZIMAGE_LOAD_ADDR;
+ 	else
+-		*load_address = (void *)ZIMAGE_LOAD_ADDR;
++		*load_addressp = ZIMAGE_LOAD_ADDR;
+ 
+ 	printf("Building boot_params at 0x%8.8lx\n", (ulong)setup_base);
+ 	memset(setup_base, 0, sizeof(*setup_base));
+@@ -203,10 +204,10 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
+ 		return 0;
+ 	}
+ 
+-	printf("Loading %s at address %p (%ld bytes)\n",
+-		big_image ? "bzImage" : "zImage", *load_address, kernel_size);
++	printf("Loading %s at address %lx (%ld bytes)\n",
++	       big_image ? "bzImage" : "zImage", *load_addressp, kernel_size);
+ 
+-	memmove(*load_address, image + setup_size, kernel_size);
++	memmove((void *)*load_addressp, image + setup_size, kernel_size);
+ 
+ 	return setup_base;
+ }
+@@ -261,48 +262,6 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
+ 	return 0;
+ }
+ 
+-/*
+- * Implement a weak default function for boards that optionally
+- * need to clean up the system before jumping to the kernel.
+- */
+-__weak void board_final_cleanup(void)
+-{
+-}
+-
+-void boot_zimage(void *setup_base, void *load_address)
+-{
+-	debug("## Transferring control to Linux (at address %08x) ...\n",
+-	      (u32)setup_base);
+-
+-	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
+-#ifdef CONFIG_BOOTSTAGE_REPORT
+-	bootstage_report();
+-#endif
+-	board_final_cleanup();
+-
+-	printf("\nStarting kernel ...\n\n");
+-
+-#ifdef CONFIG_SYS_COREBOOT
+-	timestamp_add_now(TS_U_BOOT_START_KERNEL);
+-#endif
+-	/*
+-	 * Set %ebx, %ebp, and %edi to 0, %esi to point to the boot_params
+-	 * structure, and then jump to the kernel. We assume that %cs is
+-	 * 0x10, 4GB flat, and read/execute, and the data segments are 0x18,
+-	 * 4GB flat, and read/write. U-boot is setting them up that way for
+-	 * itself in arch/i386/cpu/cpu.c.
+-	 */
+-	__asm__ __volatile__ (
+-	"movl $0, %%ebp\n"
+-	"cli\n"
+-	"jmp *%[kernel_entry]\n"
+-	:: [kernel_entry]"a"(load_address),
+-	   [boot_params] "S"(setup_base),
+-	   "b"(0), "D"(0)
+-	:  "%ebp"
+-	);
+-}
+-
+ void setup_pcat_compatibility(void)
+ 	__attribute__((weak, alias("__setup_pcat_compatibility")));
+ 
+@@ -314,7 +273,7 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+ {
+ 	struct boot_params *base_ptr;
+ 	void *bzImage_addr = NULL;
+-	void *load_address;
++	ulong load_address;
+ 	char *s;
+ 	ulong bzImage_size = 0;
+ 	ulong initrd_addr = 0;
+@@ -359,10 +318,7 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+ 	}
+ 
+ 	/* we assume that the kernel is in place */
+-	boot_zimage(base_ptr, load_address);
+-	/* does not return */
+-
+-	return -1;
++	return boot_linux_kernel((ulong)base_ptr, load_address, false);
+ }
+ 
+ U_BOOT_CMD(
+diff --git a/common/bootm.c b/common/bootm.c
+index 7ec2ed8..fd31dde 100644
+--- a/common/bootm.c
++++ b/common/bootm.c
+@@ -83,6 +83,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
+ {
+ 	const void *os_hdr;
+ 	bool ep_found = false;
++	int ret;
+ 
+ 	/* get kernel image header, start address and length */
+ 	os_hdr = boot_get_kernel(cmdtp, flag, argc, argv,
+@@ -102,6 +103,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
+ 
+ 		images.os.end = image_get_image_end(os_hdr);
+ 		images.os.load = image_get_load(os_hdr);
++		images.os.arch = image_get_arch(os_hdr);
+ 		break;
+ #endif
+ #if defined(CONFIG_FIT)
+@@ -129,6 +131,13 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
+ 			return 1;
+ 		}
+ 
++		if (fit_image_get_arch(images.fit_hdr_os,
++				       images.fit_noffset_os,
++				       &images.os.arch)) {
++			puts("Can't get image ARCH!\n");
++			return 1;
++		}
++
+ 		images.os.end = fit_get_end(images.fit_hdr_os);
+ 
+ 		if (fit_image_get_load(images.fit_hdr_os, images.fit_noffset_os,
+@@ -156,8 +165,18 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
+ 		return 1;
+ 	}
+ 
+-	/* find kernel entry point */
+-	if (images.legacy_hdr_valid) {
++	/* If we have a valid setup.bin, we will use that for entry (x86) */
++	if (images.os.arch == IH_ARCH_I386 ||
++	    images.os.arch == IH_ARCH_X86_64) {
++		ulong len;
++
++		ret = boot_get_setup(&images, IH_ARCH_I386, &images.ep, &len);
++		if (ret < 0 && ret != -ENOENT) {
++			puts("Could not find a valid setup.bin for x86\n");
++			return 1;
++		}
++		/* Kernel entry point is the setup.bin */
++	} else if (images.legacy_hdr_valid) {
+ 		images.ep = image_get_ep(&images.legacy_hdr_os_copy);
+ #if defined(CONFIG_FIT)
+ 	} else if (images.fit_uname_os) {
+@@ -334,6 +353,8 @@ static int decomp_image(int comp, ulong load, ulong image_start, int type,
+ 		printf("   Uncompressing %s ... ", type_name);
+ 
+ 		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
++		printf("\n   Uncompressing %s ... size %d -> %d\n",
++			    type_name, unc_len, size); 
+ 		if (ret != LZO_E_OK) {
+ 			printf("LZO: uncompress or overwrite error %d - must RESET board to recover\n",
+ 			       ret);
+diff --git a/common/image-fit.c b/common/image-fit.c
+index c61be65..5c6014b 100644
+--- a/common/image-fit.c
++++ b/common/image-fit.c
+@@ -1497,6 +1497,10 @@ static const char *fit_get_image_type_property(int type)
+ 		return FIT_KERNEL_PROP;
+ 	case IH_TYPE_RAMDISK:
+ 		return FIT_RAMDISK_PROP;
++        case IH_TYPE_X86_SETUP:
++		return FIT_SETUP_PROP;
++	case IH_TYPE_LOADABLE:
++		return FIT_LOADABLE_PROP;
+ 	}
+ 
+ 	return "unknown";
+@@ -1693,3 +1697,23 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
+ 
+ 	return noffset;
+ }
++
++int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
++                        ulong *setup_start, ulong *setup_len)
++{
++	int noffset;
++	ulong addr;
++	ulong len;
++	int ret;
++
++	addr = map_to_sysmem(images->fit_hdr_os);
++	noffset = fit_get_node_from_config(images, FIT_SETUP_PROP, addr);
++	if (noffset < 0)
++		return noffset;
++
++	ret = fit_image_load(images, addr, NULL, NULL, arch,
++			     IH_TYPE_X86_SETUP, BOOTSTAGE_ID_FIT_SETUP_START,
++			     FIT_LOAD_REQUIRED, setup_start, &len);
++
++	return ret;
++}
+diff --git a/common/image.c b/common/image.c
+index 11b3cf5..207d80c 100644
+--- a/common/image.c
++++ b/common/image.c
+@@ -142,7 +142,8 @@ static const table_entry_t uimage_type[] = {
+ 	{	IH_TYPE_UBLIMAGE,   "ublimage",   "Davinci UBL image",},
+ 	{	IH_TYPE_MXSIMAGE,   "mxsimage",   "Freescale MXS Boot Image",},
+ 	{	IH_TYPE_ATMELIMAGE, "atmelimage", "ATMEL ROM-Boot Image",},
+-	{	-1,		    "",		  "",			},
++        {       IH_TYPE_X86_SETUP,  "x86_setup",  "x86 setup.bin",    },
++	 {	-1,		    "",		  "",			},
+ };
+ 
+ static const table_entry_t uimage_comp[] = {
+@@ -1076,6 +1077,16 @@ error:
+ }
+ #endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
+ 
++int boot_get_setup(bootm_headers_t *images, uint8_t arch,
++                   ulong *setup_start, ulong *setup_len)
++{
++#if defined(CONFIG_FIT)
++	return boot_get_setup_fit(images, arch, setup_start, setup_len);
++#else
++	return -ENOENT;
++#endif
++}
++
+ #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
+ /**
+  * boot_get_cmdline - allocate and initialize kernel cmdline
+diff --git a/include/bootstage.h b/include/bootstage.h
+index 87bf906..eb6e7a2 100644
+--- a/include/bootstage.h
++++ b/include/bootstage.h
+@@ -159,6 +159,10 @@ enum bootstage_id {
+ 	/* Next 10 IDs used by BOOTSTAGE_SUB_... */
+ 	BOOTSTAGE_ID_FIT_RD_START = 120,	/* Ramdisk stages */
+ 
++	/* Next 10 IDs used by BOOTSTAGE_SUB_... */
++	BOOTSTAGE_ID_FIT_SETUP_START = 130,     /* x86 setup stages */
++
++
+ 	BOOTSTAGE_ID_IDE_FIT_READ = 140,
+ 	BOOTSTAGE_ID_IDE_FIT_READ_OK,
+ 
+diff --git a/include/configs/edison.h b/include/configs/edison.h
+index 33a19ff..7761d07 100644
+--- a/include/configs/edison.h
++++ b/include/configs/edison.h
+@@ -266,12 +266,12 @@
+ 
+ #define CONFIG_OF_CONTROL
+ #define CONFIG_OF_SEPARATE
+-#define CONFIG_OF_LIBFDT
+ #define CONFIG_RSA
+ #define CONFIG_FIT
+ #define CONFIG_FIT_VERBOSE
+ #define CONFIG_FIT_SIGNATURE
+ #define CONFIG_DEFAULT_DEVICE_TREE "edison"
+-#define CONFIG_LZO
++#define CONFIG_LZMA
++#define CONFIG_LMB
+ 
+ #endif
+diff --git a/include/image.h b/include/image.h
+index 3e8f78d..7355477 100644
+--- a/include/image.h
++++ b/include/image.h
+@@ -173,6 +173,7 @@ struct lmb;
+ #define IH_ARCH_OPENRISC        21	/* OpenRISC 1000  */
+ #define IH_ARCH_ARM64		22	/* ARM64	*/
+ #define IH_ARCH_ARC		23	/* Synopsys DesignWare ARC */
++#define IH_ARCH_X86_64		24	/* AMD x86_64, Intel and Via */
+ 
+ /*
+  * Image Types
+@@ -232,6 +233,10 @@ struct lmb;
+ #define IH_TYPE_MXSIMAGE	16	/* Freescale MXSBoot Image	*/
+ #define IH_TYPE_GPIMAGE		17	/* TI Keystone GPHeader Image	*/
+ #define IH_TYPE_ATMELIMAGE	18	/* ATMEL ROM bootable Image	*/
++#define IH_TYPE_SOCFPGAIMAGE    19      /* Altera SOCFPGA Preloader     */
++#define IH_TYPE_X86_SETUP       20      /* x86 setup.bin Image          */
++#define IH_TYPE_LPC32XXIMAGE    21      /* x86 setup.bin Image          */
++#define IH_TYPE_LOADABLE        22      /* A list of typeless images    */
+ 
+ /*
+  * Compression Types
+@@ -272,6 +277,7 @@ typedef struct image_info {
+ 	ulong		image_start, image_len; /* start of image within blob, len of image */
+ 	ulong		load;			/* load addr for the image */
+ 	uint8_t		comp, type, os;		/* compression, type of image, os type */
++	uint8_t         arch;                   /* CPU architecture */
+ } image_info_t;
+ 
+ /*
+@@ -415,6 +421,9 @@ enum fit_load_op {
+ 	FIT_LOAD_REQUIRED,	/* Must be provided */
+ };
+ 
++int boot_get_setup(bootm_headers_t *images, uint8_t arch, ulong *setup_start,
++                   ulong *setup_len);
++
+ #ifndef USE_HOSTCC
+ /* Image format types, returned by _get_format() routine */
+ #define IMAGE_FORMAT_INVALID	0x00
+@@ -432,6 +441,9 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
+ 		uint8_t arch, ulong *rd_start, ulong *rd_end);
+ #endif
+ 
++int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
++                       ulong *setup_start, ulong *setup_len);
++
+ /**
+  * fit_image_load() - load an image from a FIT
+  *
+@@ -714,7 +726,10 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
+ #define FIT_KERNEL_PROP		"kernel"
+ #define FIT_RAMDISK_PROP	"ramdisk"
+ #define FIT_FDT_PROP		"fdt"
+-#define FIT_DEFAULT_PROP	"default"
++#define FIT_LOADABLE_PROP       "loadables"
++#define FIT_DEFAULT_PROP        "default"
++#define FIT_SETUP_PROP          "setup"
++
+ 
+ #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
+ 
