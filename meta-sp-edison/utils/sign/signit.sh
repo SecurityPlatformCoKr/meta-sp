@@ -67,3 +67,17 @@ keys_dir=${top_repo_dir}/sp/meta-sp/keys
 
 cp dt.dtb dt-pubkey.dtb
 ${mkimage} -f sign.its -K dt-pubkey.dtb -k ${keys_dir} -r image.fit
+
+#
+# add image.fit to edison-image-edison.hddimg
+
+edisonimage=${build_dir}/tmp/deploy/images/edison/edison-image-edison.hddimg
+if [ -e ${edisonimage} ]; then
+    if mdir -i ${edisonimage} ::/ | grep -q vmlinuz; then
+	mdel -i ${edisonimage} ::/vmlinuz
+    fi
+    if mdir -i ${edisonimage} ::/ | grep -q "image    fit"; then
+	mdel -i ${edisonimage} ::/image.fit
+    fi
+    mcopy -i ${edisonimage} -n image.fit ::/
+fi
