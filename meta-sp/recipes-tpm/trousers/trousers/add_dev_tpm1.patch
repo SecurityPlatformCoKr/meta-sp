@@ -1,0 +1,11 @@
+diff -urNp trousers-0.3.10.a/src/tddl/tddl.c trousers-0.3.10.b/src/tddl/tddl.c
+--- trousers-0.3.10.a/src/tddl/tddl.c	2012-09-20 02:24:48.000000000 +0900
++++ trousers-0.3.10.b/src/tddl/tddl.c	2015-09-16 10:58:45.650673634 +0900
+@@ -24,6 +24,7 @@
+ 
+ struct tpm_device_node tpm_device_nodes[] = {
+ 	{"/dev/tpm0", TDDL_UNDEF, TDDL_UNDEF},
++	{"/dev/tpm1", TDDL_UNDEF, TDDL_UNDEF},
+ 	{"/udev/tpm0", TDDL_UNDEF, TDDL_UNDEF},
+ 	{"/dev/tpm", TDDL_UNDEF, TDDL_UNDEF},
+ 	{NULL, 0, 0}

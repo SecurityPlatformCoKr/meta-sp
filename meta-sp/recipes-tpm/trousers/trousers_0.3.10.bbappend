@@ -4,6 +4,7 @@ inherit systemd
 SYSTEMD_SERVICE_${PN} = "trousers.service"
 
 SRC_URI += "file://trousers.service \
+	    file://add_dev_tpm1.patch \
 	    "
 
 do_install_append() {
