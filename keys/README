@@ -1,1 +1,4 @@
-place-holder for keys
+to generate your own key, follow next:
+
+openssl genrsa -F4 -out dev.key 2048
+openssl req -batch -new -x509 -key dev.key -out dev.crt
