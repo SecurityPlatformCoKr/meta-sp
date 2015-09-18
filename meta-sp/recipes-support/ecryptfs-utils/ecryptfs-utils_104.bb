@@ -4,7 +4,7 @@ file written, so that encrypted files can be copied between hosts; the file \
 will be decrypted with the proper key in the Linux kernel keyring"
 SECTION = "base"
 LICENSE = "GPLv2"
-DEPENDS = "intltool-native keyutils libgcrypt libpam openssl glib-2.0-native"
+DEPENDS = "intltool-native keyutils libgcrypt libpam openssl glib-2.0-native trousers"
 
 PR = "r1"
 
