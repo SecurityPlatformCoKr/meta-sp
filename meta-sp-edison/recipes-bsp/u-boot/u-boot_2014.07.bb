@@ -13,5 +13,6 @@ SRC_URI += " file://fit_image_x86_setup.patch"
 do_compile_append() {
     if [ -e ${WORKDIR}/dt-pubkey.dtb ]; then
 	make EXT_DTB=${WORKDIR}/dt-pubkey.dtb
+	cp -f u-boot-dtb.bin u-boot.bin
     fi
 }
