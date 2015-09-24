@@ -47,6 +47,7 @@
         configurations {
                 default = "conf@1";
                 conf@1 {
+			description = "conf";
                         kernel = "kernel@1";
 			setup = "setup@1";
                         fdt = "fdt@1";
