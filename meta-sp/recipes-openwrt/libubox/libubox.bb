@@ -2,6 +2,8 @@ DESCRIPTION="freecwmp`s dependency"
 LICENSE="CC-BY-NC-SA-3.0"
 LIC_FILES_CHKSUM="file://${COMMON_LICENSE_DIR}/CC-BY-NC-SA-3.0;md5=b285975b5e439d99c95bcba5b5a8cf39"
 
+DEPENDS+="lua5.1"
+
 SRC_URI="git://nbd.name/luci2/libubox.git;protocol=git \
 	 file://cmake_soversion.patch \
 	"
