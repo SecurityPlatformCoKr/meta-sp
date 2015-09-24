@@ -543,14 +543,15 @@ index 87bf906..eb6e7a2 100644
  	BOOTSTAGE_ID_IDE_FIT_READ_OK,
  
 diff --git a/include/configs/edison.h b/include/configs/edison.h
-index 33a19ff..7761d07 100644
+index c29890c..e16f56b 100644
 --- a/include/configs/edison.h
 +++ b/include/configs/edison.h
-@@ -266,12 +266,12 @@
+@@ -266,13 +266,13 @@
  
  #define CONFIG_OF_CONTROL
  #define CONFIG_OF_SEPARATE
 -#define CONFIG_OF_LIBFDT
+ #define CONFIG_USE_FDT
  #define CONFIG_RSA
  #define CONFIG_FIT
  #define CONFIG_FIT_VERBOSE

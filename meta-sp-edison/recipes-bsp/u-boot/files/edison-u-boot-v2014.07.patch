@@ -9796,10 +9796,10 @@ index a1a63a0..25a4dff 100644
  #define CONFIG_OF_SEPARATE
 diff --git a/include/configs/edison.h b/include/configs/edison.h
 new file mode 100644
-index 0000000..33a19ff
+index 0000000..c29890c
 --- /dev/null
 +++ b/include/configs/edison.h
-@@ -0,0 +1,277 @@
+@@ -0,0 +1,278 @@
 +#ifndef _EDISON_H
 +#define _EDISON_H
 +
@@ -10069,6 +10069,7 @@ index 0000000..33a19ff
 +#define CONFIG_OF_CONTROL
 +#define CONFIG_OF_SEPARATE
 +#define CONFIG_OF_LIBFDT
++#define CONFIG_USE_FDT
 +#define CONFIG_RSA
 +#define CONFIG_FIT
 +#define CONFIG_FIT_VERBOSE
