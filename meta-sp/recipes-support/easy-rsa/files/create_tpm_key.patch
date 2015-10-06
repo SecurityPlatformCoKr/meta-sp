@@ -1,0 +1,48 @@
+diff --git a/easyrsa3/easyrsa b/easyrsa3/easyrsa
+index a7d6345..4560549 100755
+--- a/easyrsa3/easyrsa
++++ b/easyrsa3/easyrsa
+@@ -501,9 +501,12 @@ Run easyrsa without commands for usage and commands."
+ 
+ 	# function opts support
+ 	local opts=
++	local tpmopts=
+ 	while [ -n "$1" ]; do
+ 		case "$1" in
+-			nopass) opts="$opts -nodes" ;;
++			nopass)
++			    tpmopts="-z"
++			    opts="$opts -nodes" ;;
+ 			# batch flag supports internal callers needing silent operation
+ 			batch) local EASYRSA_BATCH=1 ;;
+ 			*) warn "Ignoring unknown command option: '$1'" ;;
+@@ -544,9 +547,16 @@ $EASYRSA_EXTRA_EXTS"
+ 
+ 	# generate request
+ 	[ $EASYRSA_BATCH ] && opts="$opts -batch"
++	if [ -e /usr/bin/create_tpm_key ]; then
++	    /usr/bin/create_tpm_key $tpmopts $key_out
++	    "$EASYRSA_OPENSSL" req -new -keyform engine -engine tpm \
++		-config "$EASYRSA_SSL_CONF" -out "$req_out" \
++		|| die "Failed to generate request"
++	else
+ 	"$EASYRSA_OPENSSL" req -new -newkey $EASYRSA_ALGO:"$EASYRSA_ALGO_PARAMS" \
+ 		-config "$EASYRSA_SSL_CONF" -keyout "$key_out" -out "$req_out" $opts \
+ 		|| die "Failed to generate request"
++	fi
+ 	notice "\
+ Keypair and certificate request completed. Your files are:
+ req: $req_out
+@@ -996,9 +1006,9 @@ Note: using Easy-RSA configuration from: $vars"
+ 	set_var EASYRSA_OPENSSL	openssl
+ 	set_var EASYRSA_PKI	"$EASYRSA/pki"
+ 	set_var EASYRSA_DN	cn_only
+-	set_var EASYRSA_REQ_COUNTRY	"US"
+-	set_var EASYRSA_REQ_PROVINCE	"California"
+-	set_var EASYRSA_REQ_CITY	"San Francisco"
++	set_var EASYRSA_REQ_COUNTRY	"KR"
++	set_var EASYRSA_REQ_PROVINCE	"Seoul"
++	set_var EASYRSA_REQ_CITY	"Jung-Gu"
+ 	set_var EASYRSA_REQ_ORG		"Copyleft Certificate Co"
+ 	set_var EASYRSA_REQ_EMAIL	me@example.net
+ 	set_var EASYRSA_REQ_OU		"My Organizational Unit"
