@@ -85,18 +85,23 @@ index af9a47f..52fcffb 100644
    const char *cipher_list;
    const char *tls_verify;
 diff --git a/src/openvpn/ssl.c b/src/openvpn/ssl.c
-index a17c738..e8c3880 100644
+index a17c738..9bcad73 100644
 --- a/src/openvpn/ssl.c
 +++ b/src/openvpn/ssl.c
-@@ -537,7 +537,7 @@ init_ssl (const struct options *options, struct tls_root_ctx *new_ctx)
+@@ -537,8 +537,11 @@ init_ssl (const struct options *options, struct tls_root_ctx *new_ctx)
        /* Load Private Key */
        if (options->priv_key_file)
  	{
 -          if (0 != tls_ctx_load_priv_file(new_ctx, options->priv_key_file, options->priv_key_file_inline))
+-            goto err;
 +          if (0 != tls_ctx_load_priv_file(new_ctx, options->priv_key_engine, options->priv_key_file, options->priv_key_file_inline))
-             goto err;
++	    {
++	      msg (M_FATAL, "Error: tls_ctx_load_priv_file() failed.");
++	      goto err;
++	    }
  	}
      }
+ 
 diff --git a/src/openvpn/ssl_backend.h b/src/openvpn/ssl_backend.h
 index 6d47bd0..da8848f 100644
 --- a/src/openvpn/ssl_backend.h
@@ -111,21 +116,31 @@ index 6d47bd0..da8848f 100644
      );
  
 diff --git a/src/openvpn/ssl_openssl.c b/src/openvpn/ssl_openssl.c
-index be33caa..ec5b200 100644
+index be33caa..53ee9ba 100644
 --- a/src/openvpn/ssl_openssl.c
 +++ b/src/openvpn/ssl_openssl.c
-@@ -576,8 +576,8 @@ tls_ctx_free_cert_file (X509 *x509)
+@@ -57,6 +57,9 @@
+ #include <openssl/x509.h>
+ #include <openssl/crypto.h>
+ 
++#include <tss/tss_defines.h>
++#include <tss/tpm.h>
++
+ /*
+  * Allocate space in SSL objects in which to store a struct tls_session
+  * pointer back to parent.
+@@ -576,8 +579,8 @@ tls_ctx_free_cert_file (X509 *x509)
  }
  
  int
 -tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
 -    const char *priv_key_file_inline
-+tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine,
++tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine,	
 +    const char *priv_key_file, const char *priv_key_file_inline
      )
  {
    int status;
-@@ -598,9 +598,21 @@ tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
+@@ -598,11 +601,25 @@ tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
    if (!in)
      goto end;
  
@@ -144,10 +159,15 @@ index be33caa..ec5b200 100644
 +    pkey = PEM_read_bio_PrivateKey (in, NULL,
                                    ssl_ctx->default_passwd_callback,
                                    ssl_ctx->default_passwd_callback_userdata);
+-  if (!pkey)
 +  }
-   if (!pkey)
++  if (!pkey) {
++    msg (M_FATAL, "pkey NULL");
      goto end;
++  }
  
+   if (!SSL_CTX_use_PrivateKey (ssl_ctx, pkey))
+     {
 diff --git a/src/openvpn/ssl_openssl.h b/src/openvpn/ssl_openssl.h
 index 73a6c49..3c6bd9c 100644
 --- a/src/openvpn/ssl_openssl.h

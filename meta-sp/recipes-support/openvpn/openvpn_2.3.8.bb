@@ -4,12 +4,14 @@ SECTION = "console/network"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=5aac200199fde47501876cba7263cb0c"
 DEPENDS = "lzo openssl iproute2 ${@base_contains('DISTRO_FEATURES', 'pam', 'libpam', '', d)}"
-DEPENDS += "systemd"
+DEPENDS += "systemd trousers"
 
 inherit autotools
 
 SRC_URI = "git://github.com/OpenVPN/openvpn.git;protocol=https;nobranch=1 \
 	   file://check_tty_ifndef_systemd.patch \
+	   file://tpm_support.patch \
+	   file://ui_openssl_systemd.patch \
            file://openvpn@.service \
 	   file://server.conf \
 	   file://client.conf \

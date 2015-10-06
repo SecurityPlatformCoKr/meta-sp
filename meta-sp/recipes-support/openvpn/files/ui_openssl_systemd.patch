@@ -1,0 +1,284 @@
+diff --git a/src/openvpn/console.c b/src/openvpn/console.c
+index d66d408..f501eff 100644
+--- a/src/openvpn/console.c
++++ b/src/openvpn/console.c
+@@ -36,6 +36,10 @@
+ 
+ #ifdef ENABLE_SYSTEMD
+ #include <systemd/sd-daemon.h>
++  #ifdef ENABLE_CRYPTO_OPENSSL
++  #include <openssl/ossl_typ.h>
++  #include <openssl/ui.h>
++  #endif
+ #endif
+ 
+ #ifdef WIN32
+@@ -158,33 +162,108 @@ check_systemd_running ()
+ 
+ }
+ 
+-static bool
+-get_console_input_systemd (const char *prompt, const bool echo, char *input, const int capacity)
++static int sout;
++static int _open_console(char * prompt)
+ {
+-  int std_out;
+-  bool ret = false;
+   struct argv argv;
+-
+   argv_init (&argv);
+   argv_printf (&argv, SYSTEMD_ASK_PASSWORD_PATH);
+   argv_printf_cat (&argv, "%s", prompt);
+ 
+-  if ((std_out = openvpn_popen (&argv, NULL)) < 0) {
+-	  return false;
++  if ((sout = openvpn_popen (&argv, NULL)) < 0) {
++	  return 0;
+   }
+-  CLEAR (*input);
+-  if (read (std_out, input, capacity) != 0)
+-    {
+-       chomp (input);
+-       ret = true;
+-    }
+-  close (std_out);
+-
+   argv_reset (&argv);
++  return 1;
++}
+ 
+-  return ret;
++static int _close_console(void)
++{
++  return 1;
++}
++
++static int _read_string(char *buf, int len)
++{
++  if (read(sout, buf, len) > 0) {
++    chomp (buf);
++    return 1;
++  }
++  return 0;
++}
++
++#ifdef ENABLE_CRYPTO_OPENSSL
++
++static int open_console(UI *ui);
++static int close_console(UI *ui);
++static int read_string(UI *ui, UI_STRING *uis);
++
++static UI_METHOD * ui_openssl_systemd;
++UI_METHOD * UI_OpenSSL_systemd(void)
++{
++    return ui_openssl_systemd;
++}
++
++static int open_console(UI *ui)
++{
++  CRYPTO_w_lock(CRYPTO_LOCK_UI);
++
++  char * prompt = "SRK authorization:";
++  return _open_console(prompt);
+ }
+ 
++static int close_console(UI *ui)
++{
++  int r = _close_console();
++  CRYPTO_w_unlock(CRYPTO_LOCK_UI);
++  return r;
++}
++
++static int read_string(UI *ui, UI_STRING *uis)
++{
++  char result[BUFSIZ] = {0,};
++  int maxsize = BUFSIZ-1;
++  int ok = 1;
++
++  if (_read_string(result, maxsize) <= 0) {
++    ok = 0;
++    goto error;
++  }
++
++  if (ui && UI_set_result(ui, uis, result) >= 0) {
++    ok = 1;
++  }
++error:
++  OPENSSL_cleanse(result, BUFSIZ);
++  return ok;
++}
++
++void init_openssl_systemd_method(void)
++{
++    ui_openssl_systemd = UI_create_method("OpenSSL-systemd user interface");
++    UI_method_set_opener(ui_openssl_systemd, open_console);
++    UI_method_set_reader(ui_openssl_systemd, read_string);
++    UI_method_set_closer(ui_openssl_systemd, close_console);
++};
++
++
++#endif
++
++static bool
++get_console_input_systemd (const char *prompt, const bool echo, char *input, const int capacity)
++{
++  int r = _open_console(prompt);
++  if (r == 0) {
++    return false;
++  }
++
++  r = _read_string(input, capacity);
++  if (r == 0) {
++    return false;
++  }
++
++  _close_console();
++  return true;
++}
+ 
+ #endif
+ 
+diff --git a/src/openvpn/console.h b/src/openvpn/console.h
+index 268f3fe..5034118 100644
+--- a/src/openvpn/console.h
++++ b/src/openvpn/console.h
+@@ -30,4 +30,10 @@
+ bool
+ get_console_input (const char *prompt, const bool echo, char *input, const int capacity);
+ 
++#ifdef ENABLE_CRYPTO_OPENSSL
++#include <openssl/ossl_typ.h>
++UI_METHOD * UI_OpenSSL_systemd(void);
++void init_openssl_systemd_method(void);
++#endif
++
+ #endif
+diff --git a/src/openvpn/options.c b/src/openvpn/options.c
+index 2a9e881..b21e6a4 100644
+--- a/src/openvpn/options.c
++++ b/src/openvpn/options.c
+@@ -1593,6 +1593,7 @@ show_settings (const struct options *o)
+ #endif
+   SHOW_STR (priv_key_file);
+   SHOW_STR (priv_key_engine);
++  SHOW_BOOL (tpm_wellknown_password);
+ #ifndef ENABLE_CRYPTO_POLARSSL
+   SHOW_STR (pkcs12_file);
+ #endif
+@@ -2315,6 +2316,7 @@ options_postprocess_verify_ce (const struct options *options, const struct conne
+       MUST_BE_UNDEF (cert_file);
+       MUST_BE_UNDEF (priv_key_file);
+       MUST_BE_UNDEF (priv_key_engine);
++      MUST_BE_UNDEF (tpm_wellknown_password);
+ #ifndef ENABLE_CRYPTO_POLARSSL
+       MUST_BE_UNDEF (pkcs12_file);
+ #endif
+@@ -6632,6 +6634,11 @@ add_option (struct options *options,
+       VERIFY_PERMISSION (OPT_P_GENERAL);
+       options->priv_key_engine = p[1];
+     }
++  else if (streq (p[0], "tpm-wellknown-password"))
++    {
++      VERIFY_PERMISSION (OPT_P_GENERAL);
++      options->tpm_wellknown_password = true;
++    }
+   else if (streq (p[0], "tls-version-min") && p[1])
+     {
+       int ver;
+diff --git a/src/openvpn/options.h b/src/openvpn/options.h
+index 52fcffb..8ade969 100644
+--- a/src/openvpn/options.h
++++ b/src/openvpn/options.h
+@@ -508,6 +508,7 @@ struct options
+   const char *extra_certs_file;
+   const char *priv_key_file;
+   const char *priv_key_engine;
++  bool tpm_wellknown_password;
+   const char *pkcs12_file;
+   const char *cipher_list;
+   const char *tls_verify;
+diff --git a/src/openvpn/ssl.c b/src/openvpn/ssl.c
+index 9bcad73..41cf575 100644
+--- a/src/openvpn/ssl.c
++++ b/src/openvpn/ssl.c
+@@ -537,7 +537,7 @@ init_ssl (const struct options *options, struct tls_root_ctx *new_ctx)
+       /* Load Private Key */
+       if (options->priv_key_file)
+ 	{
+-          if (0 != tls_ctx_load_priv_file(new_ctx, options->priv_key_engine, options->priv_key_file, options->priv_key_file_inline))
++          if (0 != tls_ctx_load_priv_file(new_ctx, options->priv_key_engine, options->priv_key_file, options->priv_key_file_inline, options->tpm_wellknown_password))
+ 	    {
+ 	      msg (M_FATAL, "Error: tls_ctx_load_priv_file() failed.");
+ 	      goto err;
+diff --git a/src/openvpn/ssl_backend.h b/src/openvpn/ssl_backend.h
+index da8848f..da5c5e7 100644
+--- a/src/openvpn/ssl_backend.h
++++ b/src/openvpn/ssl_backend.h
+@@ -238,7 +238,7 @@ void tls_ctx_load_cert_file (struct tls_root_ctx *ctx, const char *cert_file,
+  * 				successful.
+  */
+ int tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine, const char *priv_key_file,
+-    const char *priv_key_file_inline
++    const char *priv_key_file_inline, bool tpmwellknown
+     );
+ 
+ #ifdef MANAGMENT_EXTERNAL_KEY
+diff --git a/src/openvpn/ssl_openssl.c b/src/openvpn/ssl_openssl.c
+index 53ee9ba..350a1f5 100644
+--- a/src/openvpn/ssl_openssl.c
++++ b/src/openvpn/ssl_openssl.c
+@@ -45,6 +45,7 @@
+ #include "ssl_backend.h"
+ #include "ssl_common.h"
+ #include "base64.h"
++#include "console.h"
+ 
+ #ifdef ENABLE_CRYPTOAPI
+ #include "cryptoapi.h"
+@@ -79,6 +80,10 @@ tls_init_lib()
+ 
+   mydata_index = SSL_get_ex_new_index(0, "struct session *", NULL, NULL, NULL);
+   ASSERT (mydata_index >= 0);
++
++#ifdef ENABLE_SYSTEMD
++  init_openssl_systemd_method();
++#endif
+ }
+ 
+ void
+@@ -580,7 +585,7 @@ tls_ctx_free_cert_file (X509 *x509)
+ 
+ int
+ tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine,	
+-    const char *priv_key_file, const char *priv_key_file_inline
++    const char *priv_key_file, const char *priv_key_file_inline, bool tpmwellknown
+     )
+ {
+   int status;
+@@ -610,7 +615,12 @@ tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine,
+       msg (M_WARN|M_SSL, "Cannot init engine %s", priv_key_engine);
+       goto end;
+     }
+-    pkey = ENGINE_load_private_key(engine, priv_key_file, UI_OpenSSL(), NULL);
++    if ((strncmp(priv_key_engine, "tpm", 3) == 0) && tpmwellknown) {
++        unsigned char wellknown[] = TSS_WELL_KNOWN_SECRET;
++	ENGINE_ctrl_cmd(engine, "SECRET_MODE", TSS_SECRET_MODE_SHA1, NULL, NULL, 0);
++	ENGINE_ctrl_cmd(engine, "PIN", 0, wellknown, NULL, 0);
++    }
++    pkey = ENGINE_load_private_key(engine, priv_key_file, UI_OpenSSL_systemd(), NULL);
+   } else {
+     pkey = PEM_read_bio_PrivateKey (in, NULL,
+                                   ssl_ctx->default_passwd_callback,
+diff --git a/src/openvpn/ssl_polarssl.c b/src/openvpn/ssl_polarssl.c
+index c85bd30..15342af 100644
+--- a/src/openvpn/ssl_polarssl.c
++++ b/src/openvpn/ssl_polarssl.c
+@@ -266,7 +266,7 @@ tls_ctx_load_cert_file (struct tls_root_ctx *ctx, const char *cert_file,
+ 
+ int
+ tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_engine,
+-    const char *priv_key_file, const char *priv_key_inline
++    const char *priv_key_file, const char *priv_key_inline, bool tpmopt
+     )
+ {
+   int status;
