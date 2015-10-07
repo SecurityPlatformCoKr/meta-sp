@@ -26,7 +26,8 @@ do_compile_append() {
 }
 
 do_install_append() {
-    mv ${D}/usr/lib/openssl ${D}/usr/lib/ssl
+    mv ${D}/usr/lib/openssl/engines ${D}/usr/lib/
+    rmdir ${D}/usr/lib/openssl
     install -d ${D}${bindir}
     install -m 0755 test/engine_key_loading ${D}${bindir}
     install -d ${D}/usr/share/openssl-tpm-engine
@@ -36,13 +37,15 @@ do_install_append() {
 
 PACKAGES =+ "${PN}-test"
 
-FILES_${PN} += "/usr/lib/ssl/engines/libtpm.so.0.0.0 \
-		/usr/lib/ssl/engines/libtpm.so.0 \
+FILES_${PN} += "/usr/lib/engines/libtpm.so.0.0.0 \
+		/usr/lib/engines/libtpm.so.0 \
+		/usr/lib/engines/libtpm.so \
 		"
-FILES_${PN}-dev += "/usr/lib/ssl/engines/libtpm.so \
-		    /usr/lib/ssl/engines/libtpm.la \
+INSANE_SKIP_${PN} += "dev-so"
+FILES_${PN}-dev += " \
+		    /usr/lib/engines/libtpm.la \
 		    "
-FILES_${PN}-dbg += "/usr/lib/ssl/engines/.debug/*"
+FILES_${PN}-dbg += "/usr/lib/engines/.debug/*"
 FILES_${PN}-test += "/usr/bin/engine_key_loading \
 		     /usr/share/openssl-tpm-engine/stunnel_connect.sh \
 		     /usr/share/openssl-tpm-engine/gentpmcert.sh \
