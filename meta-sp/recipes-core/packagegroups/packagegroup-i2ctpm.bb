@@ -7,5 +7,5 @@ inherit packagegroup
 RDEPENDS_${PN} = "\
 	ii2c eni2ctpm \
 	trousers tpm-tools \
-	openvpn openvpn-server openvpn-client easy-rsa \
+	openvpn openvpn-server openvpn-client easy-rsa openssl-tpm-engine \
 "
