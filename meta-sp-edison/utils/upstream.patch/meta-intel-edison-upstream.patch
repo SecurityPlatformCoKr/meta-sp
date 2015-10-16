@@ -1,0 +1,38 @@
+diff --git a/meta-intel-edison-bsp/recipes-bsp/u-boot/u-boot-osip.inc b/meta-intel-edison-bsp/recipes-bsp/u-boot/u-boot-osip.inc
+index d05d440..fb52052 100644
+--- a/meta-intel-edison-bsp/recipes-bsp/u-boot/u-boot-osip.inc
++++ b/meta-intel-edison-bsp/recipes-bsp/u-boot/u-boot-osip.inc
+@@ -6,7 +6,7 @@ OSIP_HANDOFF_POINTER = "17829888"
+ # this default generated binary environment, is embedded in a raw OSIP image
+ # use by XFSTK tools to do the initial boot
+ ENV_IMAGE = "${S}/env.bin"
+-BASE_IMAGE = "${S}/u-boot.bin"
++BASE_IMAGE = "${S}/u-boot-dtb.bin"
+ UBOOT_OSIP_SUFFIX = "img"
+ UBOOT_TMP_IMG = "${S}/u-boot.${UBOOT_OSIP_SUFFIX}.no-osip"
+ UBOOT_IMG = "${S}/u-boot.${UBOOT_OSIP_SUFFIX}"
+diff --git a/meta-intel-edison-distro/conf/distro/poky-edison.conf b/meta-intel-edison-distro/conf/distro/poky-edison.conf
+index 1e24b0a..ffdd984 100644
+--- a/meta-intel-edison-distro/conf/distro/poky-edison.conf
++++ b/meta-intel-edison-distro/conf/distro/poky-edison.conf
+@@ -4,8 +4,8 @@ DISTRO = "poky-edison"
+ PREFERRED_PROVIDER_virtual/kernel ?= "linux-yocto"
+ PREFERRED_VERSION_linux-yocto = "3.10%"
+ PREFERRED_PROVIDER_virtual/bootloader ?=  "u-boot"
+-PREFERRED_VERSION_u-boot ?= "2014.04-1"
+-PREFERRED_VERSION_u-boot-fw-utils ?= "2014.04-1"
++PREFERRED_VERSION_u-boot ?= "2014.07-1"
++PREFERRED_VERSION_u-boot-fw-utils ?= "2014.07-1"
+ PREFERRED_VERSION_connman ?= "1.27"
+ PREFERRED_VERSION_openssl ?= "1.0.1m"
+ PREFERRED_VERSION_systemd ?= "213+gitAUTOINC+c9679c652b"
+diff --git a/meta-intel-edison-distro/recipes-core/busybox/files/busybox-log.cfg b/meta-intel-edison-distro/recipes-core/busybox/files/busybox-log.cfg
+index 7b7408f..7ea3217 100644
+--- a/meta-intel-edison-distro/recipes-core/busybox/files/busybox-log.cfg
++++ b/meta-intel-edison-distro/recipes-core/busybox/files/busybox-log.cfg
+@@ -1,3 +1,3 @@
+-CONFIG_KLOGD=n
+-CONFIG_SYSLOGD=n
++CONFIG_KLOGD=y
++CONFIG_SYSLOGD=y
+ 
