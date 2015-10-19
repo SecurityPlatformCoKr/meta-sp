@@ -1,0 +1,50 @@
+This document describes "Build for raspberry2 howto"
+
+# make new directory for target. Shorter name length is preferred.
+# ex) /opt/R2
+mkdir R2
+cd R2
+
+# from
+git clone git://git.yoctoproject.org/poky.git
+cd poky
+git clone git://git.yoctoproject.org/meta-raspberrypi
+
+git clone https://github.com/flihp/meta-measured.git
+git clone https://github.com/SecurityPlatformCoKr/meta-sp
+
+cd ..
+source poky/oe-init-build-env
+
+(now you are in R2/build)
+# edit variables in conf/local.conf
+
+    MACHINE ??= "raspberrypi2"
+    GPU_MEM = "16"
+    PACKAGE_CLASSES ?= "package_ipk"
+    DISTRO ?= "poky-raspberrypi2"
+
+#edit conf/bblayers.conf
+
+BBLAYERS ?= " \
+  /opt/R2/poky/meta \
+  /opt/R2/poky/meta-yocto \
+  /opt/R2/poky/meta-yocto-bsp \
+  /opt/R2/poky/meta-raspberrypi \
+  /opt/R2/poky/meta-measured \
+  /opt/R2/poky/meta-sp/meta-sp \
+  /opt/R2/poky/meta-sp/meta-sp-raspberrypi \
+  "
+
+BBMASK = "meta-sp/meta-sp/recipes-connectivity/openssh/openssh_6.5p1.bbappend"
+BBMASK .= "|meta-sp/meta-sp/recipes-core/busybox/busybox_1.22.1.bbappend"
+
+
+#build image
+bitbake sp-rpi-image
+
+after the command done, you can use "tmp/deploy/images/raspberrypi2/sp-rpi-image-raspberrypi2.rpi-sdimg" as SD image.
+
+# run 'dd' to write the image into SD card.
+# you might change sdX to mmcblkX, according to your PC's setting.
+dd if=tmp/deploy/images/raspberrypi2/sp-rpi-image-raspberrypi2.rpi-sdimg | pv | sudo dd of=/dev/sdX bs=16M
