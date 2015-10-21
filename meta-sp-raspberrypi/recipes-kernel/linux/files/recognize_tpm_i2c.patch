@@ -1,0 +1,23 @@
+diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b.dts
+index c73249b..5d0c2fe 100644
+--- a/arch/arm/boot/dts/bcm2709-rpi-2-b.dts
++++ b/arch/arm/boot/dts/bcm2709-rpi-2-b.dts
+@@ -80,12 +80,18 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c1_pins>;
+ 	clock-frequency = <100000>;
++	tpm_i2c_atmel {
++	    type = "tpm_i2c_atmel";
++	    compatible = "atmel,at97sc3204t";
++	    reg = <0x29>;
++	};
+ };
+ 
+ &i2s {
+ 	#sound-dai-cells = <0>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2s_pins>;
++
+ };
+ 
+ &leds {
