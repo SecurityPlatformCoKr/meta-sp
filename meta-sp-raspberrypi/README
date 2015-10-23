@@ -38,6 +38,7 @@ BBLAYERS ?= " \
 
 BBMASK = "meta-sp/meta-sp/recipes-connectivity/openssh/openssh_6.5p1.bbappend"
 BBMASK .= "|meta-sp/meta-sp/recipes-core/busybox/busybox_1.22.1.bbappend"
+BBMASK .= "|meta-raspberrypi/recipes-bsp/u-boot/u-boot-rpi_git.bb"
 
 
 #build image
