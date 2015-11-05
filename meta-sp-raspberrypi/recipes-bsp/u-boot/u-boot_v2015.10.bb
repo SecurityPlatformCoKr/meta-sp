@@ -9,7 +9,7 @@ PROVIDES += "u-boot"
 LICENSE = "GPL-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6"
 
-PUBKEYDTB="dt-pubkey.dtb"
+PUBKEYDTB="bcm2709-rpi-2-b-pubkey.dtb"
 SRC_URI = "git://git.denx.de/u-boot.git;tag=v2015.10 \
 	    file://add_dts_and_fit_rsa_option_to_rpi2.patch \
 	    file://${PUBKEYDTB} \

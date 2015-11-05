@@ -6,11 +6,11 @@
 
 	images {
 		kernel@1 {
-			data = /incbin/("Image.lzo");
+			data = /incbin/("zImage");
 			type = "kernel";
 			arch = "arm";
 			os = "linux";
-			compression = "lzo";
+			compression = "none";
 			load  = <0x00200000>;
 			entry = <0x00200000>;
 			hash@1 {

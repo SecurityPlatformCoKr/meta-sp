@@ -346,7 +346,7 @@ diff --git a/include/configs/rpi_2.h b/include/configs/rpi_2.h
 index bea4ebd..2da74df 100644
 --- a/include/configs/rpi_2.h
 +++ b/include/configs/rpi_2.h
-@@ -12,6 +12,19 @@
+@@ -12,6 +12,20 @@
  #define CONFIG_SYS_CACHELINE_SIZE		64
  #define CONFIG_SYS_DCACHE_OFF
  
@@ -362,6 +362,7 @@ index bea4ebd..2da74df 100644
 +#define CONFIG_RSA
 +#define CONFIG_FIT_SIGNATURE
 +#define CONFIG_LZO
++#define CONFIG_SYS_BOOTM_LEN (10 << 20)
 +
  #include "rpi-common.h"
  
