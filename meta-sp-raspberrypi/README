@@ -23,6 +23,8 @@ source poky/oe-init-build-env
     GPU_MEM = "16"
     PACKAGE_CLASSES ?= "package_ipk"
     DISTRO ?= "poky-raspberrypi2"
+    KERNEL_IMAGETYPE="uImage"
+    KERNEL_DEVICETREE += "bcm2709-rpi-2-b-tpm-infineon.dtb"
 
 #edit conf/bblayers.conf
 
