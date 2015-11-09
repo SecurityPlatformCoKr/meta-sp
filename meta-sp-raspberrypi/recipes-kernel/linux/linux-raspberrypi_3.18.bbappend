@@ -18,6 +18,7 @@ do_sign_kernel() {
 	cp -f ${IMAGEFILE} ${TOPDIR}/signKernel/
 	cp -f ${METASPRPI}/utils/sign/sign-rpi2.its ${TOPDIR}/signKernel/sign.its
 	cp -f ${BUILDDIR}/arch/${ARCH}/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dtb ${TOPDIR}/signKernel/
+	cp -f ${BUILDDIR}/arch/${ARCH}/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dtb ${TOPDIR}/signKernel/
 	cp -f ${METASPRPI}/recipes-bsp/u-boot/files/bcm2709-rpi-2-b-pubkey.dtb ${TOPDIR}/signKernel/
 	cd ${TOPDIR}/signKernel
 	${UBOOTMKIMAGE} -f sign.its -K bcm2709-rpi-2-b-pubkey.dtb -k ${KEYDIR} -r image.fit

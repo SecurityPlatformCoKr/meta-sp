@@ -1,15 +1,32 @@
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 5612b66..4e26d00 100644
+index 5612b66..078b32c 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -64,6 +64,7 @@ endif
+@@ -64,6 +64,8 @@ endif
  dtb-$(CONFIG_BCM2708_DT) += bcm2708-rpi-b.dtb
  dtb-$(CONFIG_BCM2708_DT) += bcm2708-rpi-b-plus.dtb
  dtb-$(CONFIG_BCM2709_DT) += bcm2709-rpi-2-b.dtb
 +dtb-$(CONFIG_BCM2709_DT) += bcm2709-rpi-2-b-tpm-infineon.dtb
++dtb-$(CONFIG_BCM2709_DT) += bcm2709-rpi-2-b-tpm-atmel.dtb
  dtb-$(RPI_DT_OVERLAYS) += ads7846-overlay.dtb
  dtb-$(RPI_DT_OVERLAYS) += bmp085_i2c-sensor-overlay.dtb
  dtb-$(RPI_DT_OVERLAYS) += ds1307-rtc-overlay.dtb
+diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts
+new file mode 100644
+index 0000000..a2af341
+--- /dev/null
++++ b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts
+@@ -0,0 +1,10 @@
++/include/ "bcm2709-rpi-2-b.dts"
++
++&i2c1 {
++	status = "ok";
++	tpm_i2c_atmel {
++		type = "tpm_i2c_atmel";
++		compatible = "atmel,at97sc3204t";
++		reg = <0x29>;
++	};
++};
 diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dts
 new file mode 100644
 index 0000000..4f7be05
