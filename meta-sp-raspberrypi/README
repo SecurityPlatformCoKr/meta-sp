@@ -1,5 +1,6 @@
-This document describes "Build for raspberry2 howto"
+This document describes "howto use meta-sp-raspberrypi"
 
+==== Build for raspberrypi 2
 # make new directory for target. Shorter name length is preferred.
 # ex) /opt/R2
 mkdir R2
@@ -24,7 +25,8 @@ source poky/oe-init-build-env
     PACKAGE_CLASSES ?= "package_ipk"
     DISTRO ?= "poky-raspberrypi2"
     KERNEL_IMAGETYPE="uImage"
-    KERNEL_DEVICETREE += "bcm2709-rpi-2-b-tpm-infineon.dtb"
+    KERNEL_DEVICETREE += "bcm2709-rpi-2-b-tpm-infineon.dtb bcm2709-rpi-2-b-tpm-atmel.dtb"
+    SDIMG_ROOTFS_TYPE = "ext4"
 
 #edit conf/bblayers.conf
 
@@ -50,4 +52,29 @@ after the command done, you can use "tmp/deploy/images/raspberrypi2/sp-rpi-image
 
 # run 'dd' to write the image into SD card.
 # you might change sdX to mmcblkX, according to your PC's setting.
-dd if=tmp/deploy/images/raspberrypi2/sp-rpi-image-raspberrypi2.rpi-sdimg | pv | sudo dd of=/dev/sdX bs=16M
+dd if=tmp/deploy/images/raspberrypi2/sp-rpi-image-raspberrypi2.rpi-sdimg | pv -s 192937984 | sudo dd of=/dev/sdX bs=16M
+
+==== Using U-boot
+
+* verified boot
+set:
+    KERNEL_IMAGETYPE="uImage"
+    KERNEL_DEVICETREE += "bcm2709-rpi-2-b-tpm-infineon.dtb bcm2709-rpi-2-b-tpm-atmel.dtb"
+
+boot sequence:
+RPI's loader -> kernel7.img(u-boot) -> uImage (FIT format image with signing).
+
+==== Initializing tpm
+
+* single-user mode boot
+ * edit /boot/extlinux/extlinux.conf and add "default FIT.single"
+* clear tpm with tpm_clear
+ * confirm that shunt exists - circuit is short
+ * tpm_setpresense --enable-hw
+ * tpm_setpresense --enable-cmd
+ * tpm_setenable -ef
+ * tpm-setactive -a
+ * reboot
+* take ownership of tpm
+ * tpm_takeownership -yz
+* set back default to FIT and reboot
