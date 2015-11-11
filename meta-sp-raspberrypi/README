@@ -66,6 +66,8 @@ RPI's loader -> kernel7.img(u-boot) -> uImage (FIT format image with signing).
 
 ==== Initializing tpm
 
+**** confirm (reset - run) connection!
+
 * single-user mode boot
  * edit /boot/extlinux/extlinux.conf and add "default FIT.single"
 * clear tpm with tpm_clear
@@ -78,3 +80,74 @@ RPI's loader -> kernel7.img(u-boot) -> uImage (FIT format image with signing).
 * take ownership of tpm
  * tpm_takeownership -yz
 * set back default to FIT and reboot
+
+==== setting up wifi
+
+# if your usb-wifi dongle not detected, try installing linux-firmware
+
+connmanctl
+> enable wifi
+> scan wifi
+> agent on
+> services
+> connect "service_ID"
+Passphrase? "PASSPHRASE"
+> config "service_ID" --autoconnect yes
+
+==== mounting ecryptfs 
+
+* TPM ownership must have been taken before this action.
+
+* initializing
+  mount-secure.sh --init
+* using /secure
+you can use /secure after reboot.
+
+===== making my .crt: setting up easy-rsa
+
+  cd /secure/easy-rsa
+  ./easyrsa gen-req RPI2 nopass
+  # you can change RPI2 to any string
+  #
+  # send pki/reqs/***.req to your CA and receive signed .crt file
+
+==== setting up openvpn as client
+
+# save your .crt file from "making my .crt" as /secure/openvpn/client.crt
+# get your CA's ca.crt and copy it to /secure/openvpn/
+# copy your private key "/secure/easy-rsa/pki/private/RPI2.key to /secure/openvpn/client.key
+# edit your /etc/openvpn/client.conf and change @SERVER_ADDRESS@ to your vpn server's address
+# and, run:
+  systemctl enable openvpn@client
+  systemctl start openvpn@client
+
+==== setup your own package update server
+* make your web-server's config file "/etc/apache2/conf-available/rpi-repo.conf" like this:
+
+-----------------------------------------------
+Alias /rpirepo /home/kkim/R2/build/tmp/deploy/ipk
+
+<Directory /home/kkim/R2/build/tmp/deploy/ipk/>
+	Options +FollowSymLinks
+	AllowOverride All
+	<IfVersion >= 2.3>
+		Require all granted
+	</IfVersion>
+	<IfVersion < 2.3>
+		order allow,deny
+		allow from all
+	</IfVersion>
+</Directory>
+-----------------------------------------------
+
+enable this configuration and reload apache2:
+  sudo a2enconf rpi-conf
+  sudo service apache2 reload
+
+and make /etc/opkg/sp.conf on your raspberrypi containing:
+  src/gz sp.all http://@WEBSERVER@/rpirepo/all
+  src/gz sp.raspberrypi2 http://@WEBSERVER@/rpirepo/raspberrypi2
+  src/gz sp.cortexa7hf-vfp-vfpv4-neon http://@WEBSERVER@/rpirepo/cortexa7hf-vfp-vfpv4-neon
+
+here, you should change @WEBSERVER@ to your web server's ip address.
+
