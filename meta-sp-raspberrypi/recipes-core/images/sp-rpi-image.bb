@@ -1,8 +1,8 @@
-#include recipes-tpm/images/core-image-tpm.inc
+#nclude recipes-tpm/images/core-image-tpm.inc
 
-DESCRIPTION = "Image with Trousers daemon." 
+DESCRIPTION = "SP Image" 
 
-IMAGE_FEATURES += "ssh-server-openssh"
+IMAGE_FEATURES += "package-management ssh-server-openssh"
 
 LICENSE = "MIT"
 
@@ -14,8 +14,19 @@ IMAGE_INSTALL += "\
 	packagegroup-tpm \
 	kmod \
 	udev-extraconf \
+	linux-firmware \
+	connman connman-client \
+	e2fsprogs-mke2fs e2fsprogs-resize2fs \
 "
 
+# tpm related packages
 IMAGE_INSTALL += "i2c-tools \
 		  sp-i2c-loader \
+		  ecryptfs-utils mount-secure \
+		  openvpn-server openvpn-client easy-rsa\
 		 "
+
+# for debugging
+IMAGE_INSTALL += " strace \
+		    sp-dev-config \
+		"
