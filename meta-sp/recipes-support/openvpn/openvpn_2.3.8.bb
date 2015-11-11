@@ -56,3 +56,5 @@ CONFFILES_${PN}-server = "${sysconfdir}/openvpn/server.conf"
 CONFFILES_${PN}-client = "${sysconfdir}/openvpn/client.conf"
 
 RDEPENDS_${PN} += " ecryptfs-utils"
+RDEPENDS_${PN}-server += "${PN}"
+RDEPENDS_${PN}-client += "${PN}"
