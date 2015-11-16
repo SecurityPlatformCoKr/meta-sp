@@ -13,7 +13,7 @@ inherit allarch
 S="${WORKDIR}/git"
 
 do_compile() {
-    ./build/build-dist.sh --version=${PV}
+    ./build/build-dist.sh --dist-clean --version=${PV}
 }
 
 do_install() {
