@@ -1,0 +1,15 @@
+diff --git a/meta-yocto/conf/bblayers.conf.sample b/meta-yocto/conf/bblayers.conf.sample
+index 0eda565..8419711 100644
+--- a/meta-yocto/conf/bblayers.conf.sample
++++ b/meta-yocto/conf/bblayers.conf.sample
+@@ -9,6 +9,10 @@ BBLAYERS ?= " \
+   ##OEROOT##/meta \
+   ##OEROOT##/meta-yocto \
+   ##OEROOT##/meta-yocto-bsp \
++  ##OEROOT##/meta-raspberrypi \
++  ##OEROOT##/meta-measured \
++  ##OEROOT##/iot-black/meta-sp \
++  ##OEROOT##/iot-black/meta-sp-raspberrypi \
+   "
+ BBLAYERS_NON_REMOVABLE ?= " \
+   ##OEROOT##/meta \
