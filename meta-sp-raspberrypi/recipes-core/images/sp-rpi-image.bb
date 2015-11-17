@@ -23,7 +23,11 @@ IMAGE_INSTALL += "\
 IMAGE_INSTALL += "i2c-tools \
 		  sp-i2c-loader \
 		  ecryptfs-utils mount-secure \
-		  openvpn-server openvpn-client easy-rsa\
+		  openvpn-server openvpn-client easy-rsa \
+		 "
+# dev tools
+
+IMAGE_INSTALL += "packagegroup-core-buildessential \
 		 "
 
 # for debugging
