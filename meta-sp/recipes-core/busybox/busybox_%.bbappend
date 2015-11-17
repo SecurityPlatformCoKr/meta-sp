@@ -6,6 +6,7 @@ PACKAGE =+ "${PN}-udhcpd"
 SRC_URI += "file://udhcpd.conf \
 	    file://busybox-udhcpd.service \
 	   "
+SRC_URI += " file://syslogd.cfg "
 
 inherit systemd
 SYSTEMD_SERVICE_${PN}-udhcpd = "busybox-udhcpd.service"
