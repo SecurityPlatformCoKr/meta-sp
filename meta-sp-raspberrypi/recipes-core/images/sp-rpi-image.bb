@@ -32,5 +32,4 @@ IMAGE_INSTALL += "packagegroup-core-buildessential \
 
 # for debugging
 IMAGE_INSTALL += " strace \
-		    sp-dev-config \
 		"
