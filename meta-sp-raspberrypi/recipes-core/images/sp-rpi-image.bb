@@ -11,7 +11,7 @@ inherit core-image
 IMAGE_INSTALL += "\
 	${CORE_IMAGE_BASE_INSTALL} \
 	packagegroup-core-boot \
-	packagegroup-tpm \
+	packagegroup-i2c-tpm \
 	kmod \
 	udev-extraconf \
 	linux-firmware \
