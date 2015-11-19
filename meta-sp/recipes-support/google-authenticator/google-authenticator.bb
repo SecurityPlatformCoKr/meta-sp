@@ -14,9 +14,9 @@ S="${WORKDIR}/git/libpam"
 inherit autotools
 
 EXTRA_OECONF += "--libdir=/lib"
-do_configure_prepend() {
-    ./bootstrap.sh
-}
+#do_configure_prepend() {
+#    ./bootstrap.sh
+#}
 
 PACKAGES += "lib${PN}"
 
