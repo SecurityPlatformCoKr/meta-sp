@@ -12,8 +12,8 @@ iot-black requires TPM is attached to successfully operate. You will be able to 
     sh setup.sh
     source poky/oe-init-build-env
     bitbake sp-rpi-image
-to complete image build, you should go poky/iot-black/keys and do as README says:
+
+to complete image build, you should go to poky/iot-black/keys and do:
 
     cd poky/iot-black/keys
-    openssl genrsa -F4 -out dev.key 2048
-    openssl req -batch -new -x509 -key dev.key -out dev.crt
+    sh README
