@@ -4,6 +4,10 @@ iot-black is os distribution for open-source hardware like raspberrypi 2, intel 
 
 iot-black requires TPM is attached to successfully operate. You will be able to buy TPM module from our website shortly.
 
+## Q&A
+
+You can ask questions about these codes at https://groups.google.com/forum/#!forum/devicesecurityplatform
+
 ## build howto's
 
 ### to build raspberrypi 2, do:
