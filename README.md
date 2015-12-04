@@ -2,7 +2,9 @@
 
 iot-black is os distribution for open-source hardware like raspberrypi 2, intel edison, and etc.
 
-iot-black requires TPM is attached to successfully operate. You will be able to buy TPM module from our website shortly.
+iot-black requires TPM attached to successfully operate.
+
+TPM module is now on sale at: http://storefarm.naver.com/cubebite . For detailed information, please refer to wiki page.
 
 ## Q&A
 
