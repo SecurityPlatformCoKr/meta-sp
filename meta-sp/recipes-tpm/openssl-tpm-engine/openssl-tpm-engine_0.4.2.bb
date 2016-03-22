@@ -15,6 +15,8 @@ DEPENDS += "openssl trousers"
 
 inherit autotools
 
+TARGET_CFLAGS += "-fsigned-char"
+
 do_configure_prepend() {
     touch ${S}/NEWS
     touch ${S}/AUTHORS
