@@ -1,14 +1,16 @@
 diff --git a/meta-yocto/conf/bblayers.conf.sample b/meta-yocto/conf/bblayers.conf.sample
-index 0eda565..5153216 100644
+index 0eda565..82ec4d1 100644
 --- a/meta-yocto/conf/bblayers.conf.sample
 +++ b/meta-yocto/conf/bblayers.conf.sample
-@@ -9,8 +9,15 @@ BBLAYERS ?= " \
+@@ -9,8 +9,17 @@ BBLAYERS ?= " \
    ##OEROOT##/meta \
    ##OEROOT##/meta-yocto \
    ##OEROOT##/meta-yocto-bsp \
 +  ##OEROOT##/meta-raspberrypi \
++  ##OEROOT##/meta-openembedded/meta-oe \
++  ##OEROOT##/meta-openembedded/meta-python \
++  ##OEROOT##/meta-openembedded/meta-network \
 +  ##OEROOT##/meta-measured \
-+  ##OEROOT##/meta-intel-iot-middleware \
 +  ##OEROOT##/iot-black/meta-sp \
 +  ##OEROOT##/iot-black/meta-sp-raspberrypi \
    "

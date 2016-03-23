@@ -10,6 +10,10 @@ if [ ! -d meta-raspberrypi ]; then
 git clone git://git.yoctoproject.org/meta-raspberrypi
 fi
 
+if [ ! -d meta-openembedded ]; then
+git clone git://git.openembedded.org/meta-openembedded 
+fi
+
 if [ ! -d meta-measured ]; then
 git clone https://github.com/flihp/meta-measured.git
 cd meta-measured
