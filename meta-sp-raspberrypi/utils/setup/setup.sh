@@ -1,17 +1,17 @@
 #!/bin/sh
 
 if [ ! -d poky ]; then
-git clone git://git.yoctoproject.org/poky.git -b yocto-2.0
+git clone git://git.yoctoproject.org/poky.git -b jethro
 fi
 
 OLDWD=$PWD
 cd poky
 if [ ! -d meta-raspberrypi ]; then
-git clone git://git.yoctoproject.org/meta-raspberrypi
+git clone git://git.yoctoproject.org/meta-raspberrypi -b jethro
 fi
 
 if [ ! -d meta-openembedded ]; then
-git clone git://git.openembedded.org/meta-openembedded 
+git clone git://git.openembedded.org/meta-openembedded  -b jethro
 fi
 
 if [ ! -d meta-measured ]; then
