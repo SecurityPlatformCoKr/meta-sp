@@ -16,10 +16,16 @@ You can ask questions about these codes at https://groups.google.com/forum/#!for
 
     wget https://raw.githubusercontent.com/SecurityPlatformCoKr/meta-sp/master/meta-sp-raspberrypi/utils/setup/setup.sh
     sh setup.sh
-    source poky/oe-init-build-env
-    bitbake sp-rpi-image
 
 to complete image build, you should go to poky/iot-black/keys and do:
 
     cd poky/iot-black/keys
     sh README
+    cd -
+
+FInally, you can run build command:
+
+    source poky/oe-init-build-env
+    bitbake sp-rpi-image
+
+
