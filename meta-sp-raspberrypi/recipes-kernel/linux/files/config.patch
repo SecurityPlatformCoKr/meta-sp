@@ -1,11 +1,11 @@
 diff --git a/arch/arm/configs/bcm2709_defconfig b/arch/arm/configs/bcm2709_defconfig
-index ff651c1..1a1a6fa 100644
+index 630da1b..dc61485 100644
 --- a/arch/arm/configs/bcm2709_defconfig
 +++ b/arch/arm/configs/bcm2709_defconfig
-@@ -1211,3 +1211,28 @@ CONFIG_DM_BIO_PRISON=m
- CONFIG_DM_PERSISTENT_DATA=m
- CONFIG_DM_THIN_PROVISIONING=m
- CONFIG_OVERLAY_FS=m
+@@ -1252,3 +1252,28 @@ CONFIG_CRYPTO_SHA512_ARM_NEON=m
+ CONFIG_CRYPTO_AES_ARM_BS=m
+ CONFIG_CRC_ITU_T=y
+ CONFIG_LIBCRC32C=y
 +
 +CONFIG_ECRYPT_FS_MESSAGING=y
 +CONFIG_HW_RANDOM_TPM=y

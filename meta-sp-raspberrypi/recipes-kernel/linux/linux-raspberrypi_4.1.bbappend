@@ -1,9 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 COMPATIBLE_MACHINE = "raspberrypi2"
 
-SRC_URI += " \
+SRC_URI += "file://recognize_tpm_i2c.patch \
 	    file://config.patch \
-	    file://recognize_tpm_i2c.patch \
 	    "
 DEPENDS += "u-boot"
 
