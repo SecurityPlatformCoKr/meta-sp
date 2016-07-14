@@ -1,18 +1,20 @@
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 65b4230..bac1e60 100644
+index d1f8e22..aaee342 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -168,6 +168,7 @@ dtb-$(CONFIG_MACH_SUN9I) += \
- dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
- 	vf610-colibri.dtb
+@@ -233,6 +233,8 @@ dtb-$(CONFIG_SOC_KEYSTONE) += k2hk-evm.dtb \
+ 	k2e-evm.dtb \
+ 	k2g-evm.dtb
  
 +dtb-$(CONFIG_BCM2836) += bcm2709-rpi-2-b.dtb
++dtb-$(CONFIG_BCM2837) += bcm2709-rpi-2-b.dtb
  targets += $(dtb-y)
  
  # Add any required device tree compiler flags here
 diff --git a/arch/arm/dts/bcm2709-rpi-2-b.dts b/arch/arm/dts/bcm2709-rpi-2-b.dts
-index e69de29..df561ed 100644
---- a/arch/arm/dts/bcm2709-rpi-2-b.dts
+new file mode 100644
+index 0000000..df561ed
+--- /dev/null
 +++ b/arch/arm/dts/bcm2709-rpi-2-b.dts
 @@ -0,0 +1,134 @@
 +/dts-v1/;
@@ -150,8 +152,9 @@ index e69de29..df561ed 100644
 +	};
 +};
 diff --git a/arch/arm/dts/bcm2709.dtsi b/arch/arm/dts/bcm2709.dtsi
-index e69de29..ceb04ad 100644
---- a/arch/arm/dts/bcm2709.dtsi
+new file mode 100644
+index 0000000..ceb04ad
+--- /dev/null
 +++ b/arch/arm/dts/bcm2709.dtsi
 @@ -0,0 +1,179 @@
 +/include/ "skeleton.dtsi"
@@ -334,36 +337,36 @@ index e69de29..ceb04ad 100644
 +	};
 +};
 diff --git a/configs/rpi_2_defconfig b/configs/rpi_2_defconfig
-index 334a1b7..602e5d4 100644
+index a26f767..e1bff39 100644
 --- a/configs/rpi_2_defconfig
 +++ b/configs/rpi_2_defconfig
-@@ -7,3 +7,4 @@ CONFIG_SYS_PROMPT="U-Boot> "
- # CONFIG_CMD_FPGA is not set
- # CONFIG_CMD_SETEXPR is not set
+@@ -20,3 +20,12 @@ CONFIG_CMD_FAT=y
+ CONFIG_CMD_FS_GENERIC=y
  CONFIG_PHYS_TO_BUS=y
-+CONFIG_DEFAULT_DEVICE_TREE="bcm2709-rpi-2-b"
-diff --git a/include/configs/rpi_2.h b/include/configs/rpi_2.h
-index bea4ebd..2da74df 100644
---- a/include/configs/rpi_2.h
-+++ b/include/configs/rpi_2.h
-@@ -12,6 +12,20 @@
- #define CONFIG_SYS_CACHELINE_SIZE		64
- #define CONFIG_SYS_DCACHE_OFF
- 
-+#define CONFIG_OF_LIBFDT
-+#define CONFIG_FSA
-+#define CONFIG_FIT
-+#define CONFIG_FIT_SIGNATURE
-+#define CONFIG_CMD_FDT
-+/*#define CONFIG_TPM */
-+/*#define CONFIG_CMD_TPM */
-+/*#define CONFIG_TPM_TIS_I2C */
-+/*#define CONFIG_I2C */
-+#define CONFIG_RSA
-+#define CONFIG_FIT_SIGNATURE
-+#define CONFIG_LZO
-+#define CONFIG_SYS_BOOTM_LEN (10 << 20)
-+
- #include "rpi-common.h"
- 
- #endif
+ CONFIG_OF_LIBFDT=y
++CONFIG_FSA=y
++CONFIG_FIT=y
++CONFIG_FIT_SIGNATURE=y
++CONFIG_CMD_FDT=y
++CONFIG_RSA=y
++CONFIG_FIT_SIGNATURE=y
++CONFIG_LZO=y
++CONFIG_OF_CONTROL=y
++CONFIG_OF_SEPARATE=y
+diff --git a/configs/rpi_3_32b_defconfig b/configs/rpi_3_32b_defconfig
+index 922e01b..f7b0a1b 100644
+--- a/configs/rpi_3_32b_defconfig
++++ b/configs/rpi_3_32b_defconfig
+@@ -20,3 +20,12 @@ CONFIG_CMD_FAT=y
+ CONFIG_CMD_FS_GENERIC=y
+ CONFIG_PHYS_TO_BUS=y
+ CONFIG_OF_LIBFDT=y
++CONFIG_FSA=y
++CONFIG_FIT=y
++CONFIG_FIT_SIGNATURE=y
++CONFIG_CMD_FDT=y
++CONFIG_RSA=y
++CONFIG_FIT_SIGNATURE=y
++CONFIG_LZO=y
++CONFIG_OF_CONTROL=y
++CONFIG_OF_SEPARATE=y
