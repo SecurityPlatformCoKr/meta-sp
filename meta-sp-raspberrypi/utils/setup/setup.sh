@@ -36,7 +36,7 @@ cd $OLDWD
 mkdir -p build/conf
 if [ ! -e build/conf/local.conf ]; then
 cat << EOF > build/conf/local.conf
-MACHINE ??= "raspberrypi2"
+MACHINE ??= "raspberrypi3"
 GPU_MEM = "16"
 PACKAGE_CLASSES ?= "package_ipk"
 DISTRO ?= "poky-raspberrypi2"
