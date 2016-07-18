@@ -10,8 +10,8 @@ do_sign_kernel() {
     POKYDIR="${TOPDIR}/../poky"
     KEYDIR="${POKYDIR}/iot-black/keys"
     if [ -e "${KEYDIR}/dev.key" ]; then
-	UBOOTMKIMAGE=`find ${TOPDIR}/tmp/work/raspberrypi2-poky-linux-gnueabi/u-boot -name mkimage | head -1`
-	BUILDDIR="${WORKDIR}/linux-raspberrypi2-standard-build"
+	UBOOTMKIMAGE=`find ${TOPDIR}/tmp/work/${MACHINE}-poky-linux-gnueabi/u-boot -name mkimage | head -1`
+	BUILDDIR="${WORKDIR}/linux-${MACHINE}-standard-build"
 	IMAGEFILE="${BUILDDIR}/arch/${ARCH}/boot/zImage"
 	METASPRPI="${POKYDIR}/iot-black/meta-sp-raspberrypi"
 	rm -rf "${TOPDIR}/signKernel"
