@@ -48,6 +48,7 @@ KERNEL_IMAGETYPE="uImage"
 KERNEL_DEVICETREE += "bcm2709-rpi-2-b-tpm-infineon.dtb bcm2709-rpi-2-b-tpm-atmel.dtb"
 SDIMG_ROOTFS_TYPE = "ext4"
 IMAGE_ROOTFS_SIZE = "524288"
+ENABLE_UART="1"
 EOF
 
 fi
