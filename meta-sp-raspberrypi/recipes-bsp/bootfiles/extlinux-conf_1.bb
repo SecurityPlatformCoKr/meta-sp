@@ -11,6 +11,11 @@ inherit deploy
 do_deploy() {
     install -d ${DEPLOYDIR}/bcm2835-bootfiles/extlinux
     install -m 0600 ${WORKDIR}/extlinux.conf ${DEPLOYDIR}/bcm2835-bootfiles/extlinux/
+    SERIALIF="console=ttyAMA0,115200n8"
+    if [ "${ENABLE_UART}" -eq "1" ]; then
+	SERIALIF="console=ttyS0,115200n8 8250.nr_uarts=1"
+    fi
+    sed -i -e "s/@SERIALIF@/${SERIALIF}/g" ${DEPLOYDIR}/bcm2835-bootfiles/extlinux/extlinux.conf
 }
 
 DEPENDS = "rpi-config"
