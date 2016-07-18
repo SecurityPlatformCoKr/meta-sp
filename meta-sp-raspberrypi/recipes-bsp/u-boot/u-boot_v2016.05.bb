@@ -17,7 +17,9 @@ SRC_URI = "git://git.denx.de/u-boot.git;tag=v2016.05 \
 
 S = "${WORKDIR}/git"
 
-UBOOT_MACHINE = "rpi_2_defconfig"
+OVERRIDES="${MACHINE}"
+UBOOT_MACHINE_raspberrypi2 = "rpi_2_defconfig"
+UBOOT_MACHINE_raspberrypi3 = "rpi_3_32b_defconfig"
 UBOOT_MAKE_TARGET = "u-boot-dtb.bin EXT_DTB=${WORKDIR}/${PUBKEYDTB}"
 UBOOT_SUFFIX = "bin"
 UBOOT_BINARY = "u-boot.img"
