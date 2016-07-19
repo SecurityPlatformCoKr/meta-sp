@@ -1,0 +1,58 @@
+From a35c77b83484f61de3150dc04f4907c6432127d2 Mon Sep 17 00:00:00 2001
+From: KyungMo Kim <kkim@securityplatform.co.kr>
+Date: Thu, 14 Jul 2016 18:19:53 +0900
+Subject: [PATCH 10/16] raspberrypi*.conf: Serial console definition split
+
+---
+ conf/machine/include/rpi-base.inc | 2 --
+ conf/machine/raspberrypi.conf     | 2 ++
+ conf/machine/raspberrypi2.conf    | 2 ++
+ conf/machine/raspberrypi3.conf    | 2 ++
+ 4 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/conf/machine/include/rpi-base.inc b/conf/machine/include/rpi-base.inc
+index bfa7ad3..dd3f5df 100644
+--- a/conf/machine/include/rpi-base.inc
++++ b/conf/machine/include/rpi-base.inc
+@@ -7,8 +7,6 @@ include conf/machine/include/soc-family.inc
+ 
+ IMAGE_FSTYPES ?= "tar.bz2 ext3 rpi-sdimg"
+ 
+-SERIAL_CONSOLE = "115200 ttyAMA0"
+-
+ XSERVER = " \
+     xserver-xorg \
+     xf86-input-evdev \
+diff --git a/conf/machine/raspberrypi.conf b/conf/machine/raspberrypi.conf
+index e8516e7..0f95f1a 100644
+--- a/conf/machine/raspberrypi.conf
++++ b/conf/machine/raspberrypi.conf
+@@ -6,3 +6,5 @@ DEFAULTTUNE ?= "arm1176jzfshf"
+ 
+ require conf/machine/include/tune-arm1176jzf-s.inc
+ include conf/machine/include/rpi-base.inc
++
++SERIAL_CONSOLE = "115200 ttyAMA0"
+diff --git a/conf/machine/raspberrypi2.conf b/conf/machine/raspberrypi2.conf
+index 30edae3..b6346e6 100644
+--- a/conf/machine/raspberrypi2.conf
++++ b/conf/machine/raspberrypi2.conf
+@@ -6,3 +6,5 @@ DEFAULTTUNE ?= "cortexa7thf-neon-vfpv4"
+ 
+ require conf/machine/include/tune-cortexa7.inc
+ include conf/machine/include/rpi-base.inc
++
++SERIAL_CONSOLE = "115200 ttyAMA0"
+diff --git a/conf/machine/raspberrypi3.conf b/conf/machine/raspberrypi3.conf
+index 1b73f2f..cb6056e 100644
+--- a/conf/machine/raspberrypi3.conf
++++ b/conf/machine/raspberrypi3.conf
+@@ -7,3 +7,5 @@ MACHINEOVERRIDES = "raspberrypi2:${MACHINE}"
+ MACHINE_EXTRA_RRECOMMENDS += "linux-firmware-brcm43430"
+ 
+ include conf/machine/raspberrypi2.conf
++
++SERIAL_CONSOLE = "115200 ttyS0"
+-- 
+1.9.1
+

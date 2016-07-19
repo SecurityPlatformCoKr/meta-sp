@@ -1,0 +1,26 @@
+From bef4fe27edc8487bff6074d705d43482c931d4ae Mon Sep 17 00:00:00 2001
+From: KyungMo Kim <kkim@securityplatform.co.kr>
+Date: Thu, 14 Jul 2016 16:19:07 +0900
+Subject: [PATCH 04/16] bcm2835-bootfiles: Update LICENCE md5 due to firmware
+ revision update
+
+---
+ recipes-bsp/bootfiles/bcm2835-bootfiles.bb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/recipes-bsp/bootfiles/bcm2835-bootfiles.bb b/recipes-bsp/bootfiles/bcm2835-bootfiles.bb
+index 0665944..b279e15 100644
+--- a/recipes-bsp/bootfiles/bcm2835-bootfiles.bb
++++ b/recipes-bsp/bootfiles/bcm2835-bootfiles.bb
+@@ -1,7 +1,7 @@
+ DESCRIPTION = "Closed source binary files to help boot the ARM on the BCM2835."
+ LICENSE = "Proprietary"
+ 
+-LIC_FILES_CHKSUM = "file://LICENCE.broadcom;md5=e86e693d19572ee64cc8b17fb062faa9"
++LIC_FILES_CHKSUM = "file://LICENCE.broadcom;md5=4a4d169737c0786fb9482bb6d30401d1"
+ 
+ inherit deploy
+ 
+-- 
+1.9.1
+
