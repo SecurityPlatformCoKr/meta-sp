@@ -1,23 +1,23 @@
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 71c77cc..5d2e8da 100644
+index 49badba..e8b3ca1 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -4,6 +4,8 @@ dtb-$(CONFIG_BCM2708_DT) += bcm2708-rpi-b.dtb
- dtb-$(CONFIG_BCM2708_DT) += bcm2708-rpi-b-plus.dtb
- dtb-$(CONFIG_BCM2708_DT) += bcm2708-rpi-cm.dtb
- dtb-$(CONFIG_BCM2709_DT) += bcm2709-rpi-2-b.dtb
-+dtb-$(CONFIG_BCM2709_DT) += bcm2709-rpi-2-b-tpm-infineon.dtb
-+dtb-$(CONFIG_BCM2709_DT) += bcm2709-rpi-2-b-tpm-atmel.dtb
- dtb-$(CONFIG_BCM2709_DT) += bcm2710-rpi-3-b.dtb
+@@ -5,6 +5,8 @@ dtb-$(CONFIG_ARCH_BCM2708) += bcm2708-rpi-b-plus.dtb
+ dtb-$(CONFIG_ARCH_BCM2708) += bcm2708-rpi-cm.dtb
+ dtb-$(CONFIG_ARCH_BCM2835) += bcm2835-rpi-cm.dtb
+ dtb-$(CONFIG_ARCH_BCM2709) += bcm2709-rpi-2-b.dtb
++dtb-$(CONFIG_ARCH_BCM2709) += bcm2709-rpi-2-b-tpm-infineon.dtb
++dtb-$(CONFIG_ARCH_BCM2709) += bcm2709-rpi-2-b-tpm-atmel.dtb
+ dtb-$(CONFIG_ARCH_BCM2709) += bcm2710-rpi-3-b.dtb
  
  # Raspberry Pi
 diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts
 new file mode 100644
-index 0000000..3ca4c9c
+index 0000000..6336b8e
 --- /dev/null
 +++ b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts
 @@ -0,0 +1,24 @@
-+/include/ "bcm2709-rpi-2-b.dts"
++#include "bcm2709-rpi-2-b.dts"
 +
 +&i2c1 {
 +	status = "ok";
@@ -43,11 +43,11 @@ index 0000000..3ca4c9c
 +};
 diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dts
 new file mode 100644
-index 0000000..de35439
+index 0000000..5b84bf9
 --- /dev/null
 +++ b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dts
 @@ -0,0 +1,24 @@
-+/include/ "bcm2709-rpi-2-b.dts"
++#include "bcm2709-rpi-2-b.dts"
 +
 +&i2c1 {
 +	status = "ok";

@@ -4,6 +4,7 @@ COMPATIBLE_MACHINE = "raspberrypi2"
 SRC_URI += "file://recognize_tpm_i2c.patch \
 	    file://config.patch \
 	    "
+
 DEPENDS += "u-boot"
 
 do_sign_kernel() {
