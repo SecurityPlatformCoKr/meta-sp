@@ -11,8 +11,8 @@ index 0eda565..82ec4d1 100644
 +  ##OEROOT##/meta-openembedded/meta-python \
 +  ##OEROOT##/meta-openembedded/meta-networking \
 +  ##OEROOT##/meta-measured \
-+  ##OEROOT##/iot-black/meta-sp \
-+  ##OEROOT##/iot-black/meta-sp-raspberrypi \
++  ##OEROOT##/meta-iot-black/meta-sp \
++  ##OEROOT##/meta-iot-black/meta-sp-raspberrypi \
    "
  BBLAYERS_NON_REMOVABLE ?= " \
    ##OEROOT##/meta \

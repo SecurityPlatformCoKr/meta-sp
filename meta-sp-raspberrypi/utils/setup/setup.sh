@@ -16,19 +16,21 @@ fi
 
 if [ ! -d meta-measured ]; then
 git clone https://github.com/flihp/meta-measured.git
+fi
+
 cd meta-measured
 git checkout a5e41f44bbccd9c0a9a4018937d1c08743b18f3c
 cd -
+
 if [ ! -d meta-intel-iot-middleware ]; then
 git clone git://git.yoctoproject.org/meta-intel-iot-middleware
 fi
-cd -
-fi
+
 if [ ! -d iot-black ]; then
-git clone https://github.com/SecurityPlatformCoKr/meta-sp iot-black
+git clone https://github.com/SecurityPlatformCoKr/meta-sp meta-iot-black
 fi
 
-patch -p1 < iot-black/meta-sp-raspberrypi/utils/setup/poky.meta-yocto.conf.bblayers.conf.sample.patch
+patch -p1 < meta-iot-black/meta-sp-raspberrypi/utils/setup/poky.meta-yocto.conf.bblayers.conf.sample.patch
 if [ $? != 0 ]; then echo "[FAIL]: patch"; exit 0; fi
 
 cd $OLDWD
