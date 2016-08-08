@@ -29,8 +29,7 @@ Finally, you can run build command:
     bitbake sp-rpi-image
 
 ### to build for raspberry pi 2, do:
-after setting up for raspberrypi 3, change only 1 character:
-in build/conf/localconf, chage
+after setting up for raspberrypi 3, change only 1 character in build/conf/local.conf, chage as next:
 
     MACHINE="raspberrypi3"
     
