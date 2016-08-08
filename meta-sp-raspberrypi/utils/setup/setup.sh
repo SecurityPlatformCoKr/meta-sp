@@ -34,7 +34,7 @@ patch -p1 < meta-iot-black/meta-sp-raspberrypi/utils/setup/poky.meta-yocto.conf.
 if [ $? != 0 ]; then echo "[FAIL]: patch"; exit 0; fi
 
 cd meta-raspberrypi
-git apply ../meta-sp-raspberrypi/utils/setup/patches-for-meta-raspberrypi/*.patch
+git apply ../meta-iot-black/meta-sp-raspberrypi/utils/setup/patches-for-meta-raspberrypi/*.patch
 
 cd $OLDWD
 
