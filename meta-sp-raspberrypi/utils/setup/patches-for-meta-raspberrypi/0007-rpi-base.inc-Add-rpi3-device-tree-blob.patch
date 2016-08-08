@@ -1,0 +1,24 @@
+From 4bfd42c4750ba00fb71e305a75b5f1af80c7aea7 Mon Sep 17 00:00:00 2001
+From: KyungMo Kim <kkim@securityplatform.co.kr>
+Date: Thu, 14 Jul 2016 16:25:06 +0900
+Subject: [PATCH 07/16] rpi-base.inc: Add rpi3 device tree blob
+
+---
+ conf/machine/include/rpi-base.inc | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/conf/machine/include/rpi-base.inc b/conf/machine/include/rpi-base.inc
+index e097702..bfa7ad3 100644
+--- a/conf/machine/include/rpi-base.inc
++++ b/conf/machine/include/rpi-base.inc
+@@ -22,6 +22,7 @@ KERNEL_DEVICETREE ?= " \
+     bcm2708-rpi-b.dtb \
+     bcm2708-rpi-b-plus.dtb \
+     bcm2709-rpi-2-b.dtb \
++    bcm2709-rpi-3-b.dtb \
+     \
+     overlays/hifiberry-amp-overlay.dtb \
+     overlays/hifiberry-dac-overlay.dtb \
+-- 
+1.9.1
+

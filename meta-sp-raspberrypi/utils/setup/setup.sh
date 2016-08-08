@@ -26,12 +26,15 @@ if [ ! -d meta-intel-iot-middleware ]; then
 git clone git://git.yoctoproject.org/meta-intel-iot-middleware
 fi
 
-if [ ! -d iot-black ]; then
+if [ ! -d meta-iot-black ]; then
 git clone https://github.com/SecurityPlatformCoKr/meta-sp meta-iot-black
 fi
 
 patch -p1 < meta-iot-black/meta-sp-raspberrypi/utils/setup/poky.meta-yocto.conf.bblayers.conf.sample.patch
 if [ $? != 0 ]; then echo "[FAIL]: patch"; exit 0; fi
+
+cd meta-raspberrypi
+git apply ../meta-sp-raspberrypi/utils/setup/patches-for-meta-raspberrypi/*.patch
 
 cd $OLDWD
 

@@ -1,0 +1,25 @@
+From 7641a4c4213fd35a5e6c8d4cd792229cfeade7fd Mon Sep 17 00:00:00 2001
+From: KyungMo Kim <kkim@securityplatform.co.kr>
+Date: Thu, 14 Jul 2016 16:14:33 +0900
+Subject: [PATCH 01/16] linux-raspberrypi: Upgrade 4.1 kernel to 4.1.17
+
+---
+ recipes-kernel/linux/linux-raspberrypi_4.1.bb | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/recipes-kernel/linux/linux-raspberrypi_4.1.bb b/recipes-kernel/linux/linux-raspberrypi_4.1.bb
+index 3a3cf40..d5bfa45 100644
+--- a/recipes-kernel/linux/linux-raspberrypi_4.1.bb
++++ b/recipes-kernel/linux/linux-raspberrypi_4.1.bb
+@@ -1,6 +1,6 @@
+-LINUX_VERSION ?= "4.1.10"
++LINUX_VERSION ?= "4.1.17"
+ 
+-SRCREV = "b74df9228c27f55361c065bc5dbfba88861cc771"
++SRCREV = "cb2f10196a9b718a2d94bb4ac0887c2ea14988ae"
+ SRC_URI = "git://github.com/raspberrypi/linux.git;protocol=git;branch=rpi-4.1.y"
+ 
+ require linux-raspberrypi.inc
+-- 
+1.9.1
+

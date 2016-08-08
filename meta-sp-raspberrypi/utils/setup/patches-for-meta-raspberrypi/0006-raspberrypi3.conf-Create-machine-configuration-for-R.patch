@@ -1,0 +1,29 @@
+From 57158653857f2d9837c2886b0ff6dd5d256ddd6b Mon Sep 17 00:00:00 2001
+From: KyungMo Kim <kkim@securityplatform.co.kr>
+Date: Thu, 14 Jul 2016 16:24:06 +0900
+Subject: [PATCH 06/16] raspberrypi3.conf: Create machine configuration for
+ Raspberrypi 3
+
+---
+ conf/machine/raspberrypi3.conf | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+ create mode 100644 conf/machine/raspberrypi3.conf
+
+diff --git a/conf/machine/raspberrypi3.conf b/conf/machine/raspberrypi3.conf
+new file mode 100644
+index 0000000..1b73f2f
+--- /dev/null
++++ b/conf/machine/raspberrypi3.conf
+@@ -0,0 +1,9 @@
++#@TYPE: Machine
++#@NAME: RaspberryPi 3 Development Board
++#@DESCRIPTION: Machine configuration for the RaspberryPi 3
++
++MACHINEOVERRIDES = "raspberrypi2:${MACHINE}"
++
++MACHINE_EXTRA_RRECOMMENDS += "linux-firmware-brcm43430"
++
++include conf/machine/raspberrypi2.conf
+-- 
+1.9.1
+

@@ -1,0 +1,24 @@
+From a107e2cdfc9aa69f3c86d7c6e2503b4ec6367f4e Mon Sep 17 00:00:00 2001
+From: KyungMo Kim <kkim@securityplatform.co.kr>
+Date: Thu, 14 Jul 2016 18:24:31 +0900
+Subject: [PATCH 13/16] rpi-base.inc: Include pi3-miniuart-bt-overlay.dtb
+
+---
+ conf/machine/include/rpi-base.inc | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/conf/machine/include/rpi-base.inc b/conf/machine/include/rpi-base.inc
+index dd3f5df..d5b4ebf 100644
+--- a/conf/machine/include/rpi-base.inc
++++ b/conf/machine/include/rpi-base.inc
+@@ -33,6 +33,7 @@ KERNEL_DEVICETREE ?= " \
+     overlays/pps-gpio-overlay.dtb \
+     overlays/w1-gpio-overlay.dtb \
+     overlays/w1-gpio-pullup-overlay.dtb \
++    overlays/pi3-miniuart-bt-overlay.dtb \
+     "
+ KERNEL_IMAGETYPE ?= "Image"
+ 
+-- 
+1.9.1
+

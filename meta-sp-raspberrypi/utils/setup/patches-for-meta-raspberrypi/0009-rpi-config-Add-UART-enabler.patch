@@ -1,0 +1,29 @@
+From fb8780b20ed5628cc638dbe21c59aad1790a9a7e Mon Sep 17 00:00:00 2001
+From: KyungMo Kim <kkim@securityplatform.co.kr>
+Date: Thu, 14 Jul 2016 18:16:31 +0900
+Subject: [PATCH 09/16] rpi-config: Add UART enabler
+
+---
+ recipes-bsp/bootfiles/rpi-config_git.bb | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/recipes-bsp/bootfiles/rpi-config_git.bb b/recipes-bsp/bootfiles/rpi-config_git.bb
+index aa11b25..7a29d5f 100644
+--- a/recipes-bsp/bootfiles/rpi-config_git.bb
++++ b/recipes-bsp/bootfiles/rpi-config_git.bb
+@@ -72,6 +72,12 @@ do_deploy() {
+         echo "# Enable SPI bus" >>${DEPLOYDIR}/bcm2835-bootfiles/config.txt
+         echo "dtparam=spi=on" >>${DEPLOYDIR}/bcm2835-bootfiles/config.txt
+     fi
++
++    # UART support
++    if [ "${ENABLE_UART}" = "1" ]; then
++        echo "# Enable UART" >>${DEPLOYDIR}/bcm2835-bootfiles/config.txt
++        echo "enable_uart=1" >>${DEPLOYDIR}/bcm2835-bootfiles/config.txt
++    fi
+ }
+ 
+ addtask deploy before do_package after do_install
+-- 
+1.9.1
+
