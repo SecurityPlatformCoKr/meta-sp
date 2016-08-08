@@ -31,6 +31,9 @@ Finally, you can run build command:
 ### to build for raspberry pi 2, do:
 after setting up for raspberrypi 3, change only 1 character:
 in build/conf/localconf, chage
+
     MACHINE="raspberrypi3"
+    
 to
+
     MACHINE="raspberrypi2"
