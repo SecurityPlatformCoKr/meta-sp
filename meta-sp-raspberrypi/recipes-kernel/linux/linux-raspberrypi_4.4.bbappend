@@ -1,5 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
-COMPATIBLE_MACHINE = "raspberrypi2"
+COMPATIBLE_MACHINE = "raspberrypi[23]"
 
 SRC_URI += "file://recognize_tpm_i2c.patch \
 	    file://config.patch \
@@ -9,12 +9,12 @@ DEPENDS += "u-boot"
 
 do_sign_kernel() {
     POKYDIR="${TOPDIR}/../poky"
-    KEYDIR="${POKYDIR}/iot-black/keys"
+    KEYDIR="${POKYDIR}/meta-iot-black/keys"
     if [ -e "${KEYDIR}/dev.key" ]; then
 	UBOOTMKIMAGE=`find ${TOPDIR}/tmp/work/${MACHINE}-poky-linux-gnueabi/u-boot -name mkimage | head -1`
 	BUILDDIR="${WORKDIR}/linux-${MACHINE}-standard-build"
 	IMAGEFILE="${BUILDDIR}/arch/${ARCH}/boot/zImage"
-	METASPRPI="${POKYDIR}/iot-black/meta-sp-raspberrypi"
+	METASPRPI="${POKYDIR}/meta-iot-black/meta-sp-raspberrypi"
 	rm -rf "${TOPDIR}/signKernel"
 	mkdir -p "${TOPDIR}/signKernel"
 	cp -f ${IMAGEFILE} ${TOPDIR}/signKernel/
@@ -29,5 +29,5 @@ do_sign_kernel() {
     fi
 }
 
-do_sign_kernel[doc] = "generate image.fit signed with iot-black/keys/dev.key"
+do_sign_kernel[doc] = "generate image.fit signed with meta-iot-black/keys/dev.key"
 addtask sign_kernel before do_rpiboot_mkimage after do_compile
