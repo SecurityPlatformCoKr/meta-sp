@@ -10,7 +10,7 @@ LICENSE = "GPL-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6"
 
 PUBKEYDTB="bcm2709-rpi-2-b-pubkey.dtb"
-SRC_URI = "git://github.com/SecurityPlatformCoKr/u-boot.git;branch=u-boot-2016.05;protocol=https;rev=812f999030441fe5c8db25dcd824d42c0749e38c \
+SRC_URI = "git://github.com/SecurityPlatformCoKr/u-boot.git;branch=u-boot-2016.05;protocol=https;rev=b0fc3c5a1cdcd0b5707ee2b841993e9f155ec412 \
 	    file://${PUBKEYDTB} \
 	    "
 SRC_URI[md5sum] = "2fe3752f96f295fe545a268b17194e5a"
