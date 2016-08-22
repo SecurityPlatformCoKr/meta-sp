@@ -1,52 +1,23 @@
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 49badba..e8b3ca1 100644
+index 49badba..f0eeb65 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -5,6 +5,8 @@ dtb-$(CONFIG_ARCH_BCM2708) += bcm2708-rpi-b-plus.dtb
+@@ -5,7 +5,9 @@ dtb-$(CONFIG_ARCH_BCM2708) += bcm2708-rpi-b-plus.dtb
  dtb-$(CONFIG_ARCH_BCM2708) += bcm2708-rpi-cm.dtb
  dtb-$(CONFIG_ARCH_BCM2835) += bcm2835-rpi-cm.dtb
  dtb-$(CONFIG_ARCH_BCM2709) += bcm2709-rpi-2-b.dtb
-+dtb-$(CONFIG_ARCH_BCM2709) += bcm2709-rpi-2-b-tpm-infineon.dtb
-+dtb-$(CONFIG_ARCH_BCM2709) += bcm2709-rpi-2-b-tpm-atmel.dtb
++dtb-$(CONFIG_ARCH_BCM2709) += bcm2709-rpi-2-b-tpm.dtb
  dtb-$(CONFIG_ARCH_BCM2709) += bcm2710-rpi-3-b.dtb
++dtb-$(CONFIG_ARCH_BCM2709) += bcm2710-rpi-3-b-tpm.dtb
  
  # Raspberry Pi
-diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts
+ ifeq ($(CONFIG_ARCH_BCM2708),y)
+diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm.dts
 new file mode 100644
-index 0000000..6336b8e
+index 0000000..351dd50
 --- /dev/null
-+++ b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dts
-@@ -0,0 +1,24 @@
-+#include "bcm2709-rpi-2-b.dts"
-+
-+&i2c1 {
-+	status = "ok";
-+	tpm_i2c_atmel {
-+		type = "tpm_i2c_atmel";
-+		compatible = "atmel,at97sc3204t";
-+		reg = <0x29>;
-+	};
-+};
-+
-+&uart1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart1_pins>;
-+	status = "okay";
-+};
-+
-+&gpio {
-+	uart1_pins: uart1_pins {
-+		brcm,pins = <14 15>;
-+		brcm,function = <2>; /* alt5 */
-+		brcm,pull = <0 2>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dts
-new file mode 100644
-index 0000000..5b84bf9
---- /dev/null
-+++ b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dts
-@@ -0,0 +1,24 @@
++++ b/arch/arm/boot/dts/bcm2709-rpi-2-b-tpm.dts
+@@ -0,0 +1,15 @@
 +#include "bcm2709-rpi-2-b.dts"
 +
 +&i2c1 {
@@ -56,18 +27,30 @@ index 0000000..5b84bf9
 +		compatible = "infineon,slb9645tt";
 +		reg = <0x20>;
 +	};
++	tpm_i2c_atmel {
++		type = "tpm_i2c_atmel";
++		compatible = "atmel,at97sc3204t";
++		reg = <0x29>;
++	};
 +};
+diff --git a/arch/arm/boot/dts/bcm2710-rpi-3-b-tpm.dts b/arch/arm/boot/dts/bcm2710-rpi-3-b-tpm.dts
+new file mode 100644
+index 0000000..2efb10c
+--- /dev/null
++++ b/arch/arm/boot/dts/bcm2710-rpi-3-b-tpm.dts
+@@ -0,0 +1,15 @@
++#include "bcm2710-rpi-3-b.dts"
 +
-+&uart1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart1_pins>;
-+	status = "okay";
-+};
-+
-+&gpio {
-+	uart1_pins: uart1_pins {
-+		brcm,pins = <14 15>;
-+		brcm,function = <2>; /* alt5 */
-+		brcm,pull = <0 2>;
++&i2c1 {
++	status = "ok";
++	tpm_i2c_infineon {
++		type = "slb9645tt";
++		compatible = "infineon,slb9645tt";
++		reg = <0x20>;
++	};
++	tpm_i2c_atmel {
++		type = "tpm_i2c_atmel";
++		compatible = "atmel,at97sc3204t";
++		reg = <0x29>;
 +	};
 +};

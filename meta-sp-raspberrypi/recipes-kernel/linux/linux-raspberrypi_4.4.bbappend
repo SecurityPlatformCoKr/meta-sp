@@ -4,6 +4,11 @@ COMPATIBLE_MACHINE = "raspberrypi[23]"
 SRC_URI += "file://recognize_tpm_i2c.patch \
 	    file://config.patch \
 	    "
+KERNEL_DEFCONFIG_raspberrypi3 ?= "bcm2709_defconfig"
+
+OVERRIDES="${MACHINE}"
+KERNEL_DEVICETREE_raspberrypi2 =+ "bcm2709-rpi-2-b-tpm.dtb"
+KERNEL_DEVICETREE_raspberrypi3 =+ "bcm2710-rpi-3-b-tpm.dtb"
 
 DEPENDS += "u-boot"
 
@@ -15,12 +20,13 @@ do_sign_kernel() {
 	BUILDDIR="${WORKDIR}/linux-${MACHINE}-standard-build"
 	IMAGEFILE="${BUILDDIR}/arch/${ARCH}/boot/zImage"
 	METASPRPI="${POKYDIR}/meta-iot-black/meta-sp-raspberrypi"
+	KERNEL_DEVICETREE=${KERNEL_DEVICETREE_${MACHINE}}
 	rm -rf "${TOPDIR}/signKernel"
 	mkdir -p "${TOPDIR}/signKernel"
 	cp -f ${IMAGEFILE} ${TOPDIR}/signKernel/
 	cp -f ${METASPRPI}/utils/sign/sign-rpi2.its ${TOPDIR}/signKernel/sign.its
-	cp -f ${BUILDDIR}/arch/${ARCH}/boot/dts/bcm2709-rpi-2-b-tpm-infineon.dtb ${TOPDIR}/signKernel/
-	cp -f ${BUILDDIR}/arch/${ARCH}/boot/dts/bcm2709-rpi-2-b-tpm-atmel.dtb ${TOPDIR}/signKernel/
+	ls ${BUILDDIR}/arch/${ARCH}/boot/dts/${KERNEL_DEVICETREE}
+	cp -f ${BUILDDIR}/arch/${ARCH}/boot/dts/${KERNEL_DEVICETREE} ${TOPDIR}/signKernel/rpi-tpm.dtb
 	cp -f ${METASPRPI}/recipes-bsp/u-boot/files/bcm2709-rpi-2-b-pubkey.dtb ${TOPDIR}/signKernel/
 	cd ${TOPDIR}/signKernel
 	${UBOOTMKIMAGE} -f sign.its -K bcm2709-rpi-2-b-pubkey.dtb -k ${KEYDIR} -r image.fit
