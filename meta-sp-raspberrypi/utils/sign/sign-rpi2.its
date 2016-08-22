@@ -18,18 +18,8 @@
 			};
 		};
 		fdt@1 {
-			description = "raspberry pi 2 with infineon tpm";
-			data = /incbin/("bcm2709-rpi-2-b-tpm-infineon.dtb");
-			type = "flat_dt";
-			arch = "arm";
-			compression = "none";
-			hash@1 {
-				algo = "sha1";
-			};
-		};
-		fdt@2 {
-			description = "raspberry pi 2 with atmel tpm";
-			data = /incbin/("bcm2709-rpi-2-b-tpm-atmel.dtb");
+			description = "raspberry pi with infineon";
+			data = /incbin/("rpi-tpm.dtb");
 			type = "flat_dt";
 			arch = "arm";
 			compression = "none";
@@ -44,15 +34,6 @@
 			kernel = "kernel@1";
 			fdt = "fdt@1";
 			signature@1 {
-				algo = "sha1,rsa2048";
-				key-name-hint = "dev";
-				sign-images = "fdt", "kernel";
-			};
-		};
-		conf@2 {
-			kernel = "kernel@1";
-			fdt = "fdt@1";
-			signature@2 {
 				algo = "sha1,rsa2048";
 				key-name-hint = "dev";
 				sign-images = "fdt", "kernel";
