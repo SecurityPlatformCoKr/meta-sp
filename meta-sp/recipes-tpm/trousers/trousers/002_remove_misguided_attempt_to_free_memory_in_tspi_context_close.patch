@@ -1,0 +1,12 @@
+diff -urNp trousers-0.3.13/src/tspi/tspi_context.c trousers-0.3.13.b/src/tspi/tspi_context.c
+--- trousers-0.3.13/src/tspi/tspi_context.c	2014-04-25 03:05:44.000000000 +0900
++++ trousers-0.3.13.b/src/tspi/tspi_context.c	2016-09-01 14:39:45.215894302 +0900
+@@ -55,8 +55,6 @@ Tspi_Context_Close(TSS_HCONTEXT tspConte
+ 	/* Destroy all objects */
+ 	obj_close_context(tspContext);
+ 
+-	Tspi_Context_FreeMemory(tspContext, NULL);
+-
+ 	/* close the ps file */
+ 	PS_close();
+ 
